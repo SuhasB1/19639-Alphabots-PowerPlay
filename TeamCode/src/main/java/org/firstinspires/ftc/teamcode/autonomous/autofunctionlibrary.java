@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
@@ -17,14 +18,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Disabled
-@Autonomous(name="basicauto", group="Training")
+@Config
+@Autonomous(name="autoFuncs", group="Training")
 public class autofunctionlibrary extends LinearOpMode {
 
     DcMotor leftWheel;
     DcMotor rightWheel;
     DcMotor backLeftWheel;
     DcMotor backRightWheel;
+    DcMotor lhArmMotor;
+    DcMotor rhArmMotor;
+    DcMotor lvArmMotor;
+    DcMotor rvArmMotor;
     BNO055IMU imu;
     boolean isStopRequested = false;
     double drivePower = 0.5;
@@ -43,6 +48,10 @@ public class autofunctionlibrary extends LinearOpMode {
         rightWheel = hardwareMap.dcMotor.get("front_right");
         backRightWheel = hardwareMap.dcMotor.get("back_right");
         backLeftWheel = hardwareMap.dcMotor.get("back_left");
+        lhArmMotor = hardwareMap.dcMotor.get("lh_arm_motor");
+        rhArmMotor = hardwareMap.dcMotor.get("rh_arm_motor");
+        lvArmMotor = hardwareMap.dcMotor.get("lv_arm_motor");
+        rvArmMotor = hardwareMap.dcMotor.get("rv_arm_motor");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -202,6 +211,10 @@ public class autofunctionlibrary extends LinearOpMode {
         rightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void setHorSlideZeroPowerBehaiv() {
+        lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     public void setRWE() {

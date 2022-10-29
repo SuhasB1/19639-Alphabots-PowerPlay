@@ -25,5 +25,6 @@ public class armtest extends LinearOpMode {
                 }
             break;
         }
+        resetRuntime();
     }
 }

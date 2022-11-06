@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="auto", group="Training")
+@Autonomous(name="auto1", group="Training")
 public class auto extends LinearOpMode {
     autofunctionlibrary robot = new autofunctionlibrary();
 

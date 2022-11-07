@@ -8,23 +8,25 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="auto", group="Training")
+@Autonomous(name="autoarmtest", group="Training")
 public class armtest extends LinearOpMode {
-    autofunctionlibrary robot = new autofunctionlibrary();
-    public ElapsedTime runtime = new ElapsedTime();
+
+    DcMotor lhArmMotor;
+
+
     @Override
     public void runOpMode() {
-        DcMotor lhArmMotor;
+
         lhArmMotor = hardwareMap.dcMotor.get("lh_arm_motor");
         lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         waitForStart();
         while (opModeIsActive()) {
-            lhArmMotor.setPower(0.2);
-                if(getRuntime() == 2.0){
-                    lhArmMotor.setPower(0);
-                }
-            break;
+            telemetry.addData("Ticks:", lhArmMotor.getCurrentPosition());
         }
-        resetRuntime();
+    }
+    public void encoders() {
+        final double ENCODER_TPR = 537.6;
+
     }
 }

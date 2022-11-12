@@ -23,6 +23,7 @@ public class armtest extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("Ticks:", lhArmMotor.getCurrentPosition());
+            telemetry.update();
         }
     }
     public void encoders() {

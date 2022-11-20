@@ -17,7 +17,7 @@ public class armtest extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        lhArmMotor = hardwareMap.dcMotor.get("lh_arm_motor");
+        lhArmMotor = hardwareMap.dcMotor.get("rhArmMotor");
         lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         waitForStart();

@@ -14,7 +14,7 @@ public class fourbarcontroller extends OpMode {
 
     Servo fourBarServo;
     Servo fourBarServo2;
-    public static double pos = -0.5;
+    public static double pos = 0;
 
     @Override
     public void init() {
@@ -24,6 +24,7 @@ public class fourbarcontroller extends OpMode {
         fourBarServo.setPosition(pos);
         fourBarServo2.setPosition(pos);
 
+
         fourBarServo.getController().pwmEnable();
         fourBarServo2.getController().pwmEnable();
 
@@ -31,6 +32,7 @@ public class fourbarcontroller extends OpMode {
         telemetry.addData("fourbarservo2", fourBarServo2.getPosition());
         telemetry.addData("fourbarservo1", fourBarServo.getDirection());
         telemetry.addData("fourbarservo2", fourBarServo2.getDirection());
+
 
         telemetry.update();
 
@@ -44,13 +46,13 @@ public class fourbarcontroller extends OpMode {
         telemetry.addData("fourbarservo1", fourBarServo.getDirection());
         telemetry.addData("fourbarservo2", fourBarServo2.getDirection());
 
+
         telemetry.update();
     }
 
     public void servoPos() {
         if (gamepad1.circle) {
-            fourBarServo.setPosition(pos);
-            fourBarServo2.setPosition(pos);
+
         } else if (gamepad1.cross) {
             fourBarServo2.setPosition(pos);
         } else if (gamepad1.triangle) {

@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
@@ -14,6 +16,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class PIDControl2 extends LinearOpMode {
     DcMotorEx motor1;
     DcMotorEx motor2;
+    Servo fourBarServo;
+    Servo fourBarServo2;
 
     public static double Kp = 0;
     public static double Ki = 0;
@@ -23,6 +27,8 @@ public class PIDControl2 extends LinearOpMode {
     public static double maxMotorTicks = 650;
 
     double integralSum = 0;
+    double pos = 0;
+    public static double p = 0.03;
 
     ElapsedTime timer = new ElapsedTime();
     private double lastError = 0;
@@ -33,17 +39,26 @@ public class PIDControl2 extends LinearOpMode {
     public void runOpMode() {
         motor1 = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
         motor2 = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
+        fourBarServo = hardwareMap.servo.get("fourBarServo");
+        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
+        fourBarServo.setDirection(Servo.Direction.REVERSE);
+        fourBarServo.setPosition(pos);
+        fourBarServo2.setPosition(pos);
+        fourBarServo.getController().pwmEnable();
+        fourBarServo2.getController().pwmEnable();
         motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         waitForStart();
         while (opModeIsActive()) {
-                motor2.setPower(0);
+
                 // double power = PIDController(targetPosition, motor1.getCurrentPosition());
 
 
@@ -58,6 +73,8 @@ public class PIDControl2 extends LinearOpMode {
 
                 //dashboard.sendTelemetryPacket(packet);
             updateLiftDrive();
+            telemetry.addData("ticks rh" , motor1.getCurrentPosition());
+            telemetry.addData("ticks lh" , motor2.getCurrentPosition());
             }
 
         }
@@ -70,10 +87,12 @@ public class PIDControl2 extends LinearOpMode {
 
         double liftError = targetPosition - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
         double liftPower = 0;
+        double liftError2 = targetPosition - motor2.getCurrentPosition();
+        double liftPower2 = 0;
 
         if (liftError > 5 || liftError < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * .03)+ .1);   		// PID with P only factor plus feed forward
+            liftPower = ((liftError * .04)+ .1);   		// PID with P only factor plus feed forward
 
             if (liftPower > .4){
                 liftPower = .4;
@@ -87,6 +106,24 @@ public class PIDControl2 extends LinearOpMode {
              liftPower = 0;
 
         } // end of if-else
+
+        if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
+
+            liftPower2 = ((liftError2 * p)+ .1);   		// PID with P only factor plus feed forward
+
+            if (liftPower2 > .4){
+                liftPower2 = .4;
+            }
+            if (liftPower2 < -.4){
+                liftPower2 = -.4;
+            }
+        }
+        else {
+
+            liftPower2 = 0;
+
+        }
+
         packet.put("power", liftPower);
         packet.put("positionLH", motor2.getCurrentPosition());
         packet.put("positionRH", motor1.getCurrentPosition());
@@ -95,6 +132,7 @@ public class PIDControl2 extends LinearOpMode {
 
 
         motor1.setPower(liftPower);
+        motor2.setPower(liftPower2);
 
 
     }

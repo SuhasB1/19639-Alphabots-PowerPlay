@@ -40,7 +40,7 @@ public class aroundfield extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         Trajectory aroundthefield = drive.trajectoryBuilder(startPose) //splines may have to be in separate trajectories test it out!
-                .splineTo(new Vector2d(10, -8), Math.toRadians(180))
+                .splineTo(new Vector2d(10, -15), Math.toRadians(180))
 
                 .splineTo(new Vector2d(-60,-56), Math.toRadians(270))
                 .build();

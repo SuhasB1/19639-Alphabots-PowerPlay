@@ -1,6 +1,7 @@
 package com.example.meepmeep;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -13,25 +14,11 @@ public class MeepMeepExample {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(35, -58, (3.14/2)))
-                                .forward(15)
-                                .waitSeconds(0.5)
-                                .forward(31)
-                                .turn(-3.14/2)
-                                .forward(15)
-                                .waitSeconds(0.5)
-                                .forward(-25)
-                                .turn(-Math.toRadians(75))
-                                .waitSeconds(0.5)
-                                .turn(Math.toRadians(75))
-                                .forward(24)
-                                .waitSeconds(0.5)
-                                .forward(-24)
-                                .turn(-Math.toRadians(75))
-                                .waitSeconds(0.5)
-                                .turn(Math.toRadians(75))
-                                .forward(-15)
-                                .strafeRight(24)
+                        drive.trajectorySequenceBuilder(new Pose2d(35, -58, Math.toRadians(90)))
+                                .splineTo(new Vector2d(10, -8), Math.toRadians(180))
+
+                                .splineTo(new Vector2d(-60,-56), Math.toRadians(270))
+
 
 
 
@@ -45,4 +32,5 @@ public class MeepMeepExample {
                 .addEntity(myBot)
                 .start();
     }
+
 }

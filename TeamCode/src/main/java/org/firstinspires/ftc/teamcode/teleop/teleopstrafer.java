@@ -20,10 +20,10 @@ public class teleopstrafer extends OpMode {
 
         @Override
         public void init() {
-            leftWheel = hardwareMap.dcMotor.get("leftFront");
-            rightWheel = hardwareMap.dcMotor.get("rightFront");
-            backRightWheel = hardwareMap.dcMotor.get("rightRear");
-            backLeftWheel = hardwareMap.dcMotor.get("leftRear");
+            leftWheel = hardwareMap.dcMotor.get("fl");
+            rightWheel = hardwareMap.dcMotor.get("fr");
+            backRightWheel = hardwareMap.dcMotor.get("br");
+            backLeftWheel = hardwareMap.dcMotor.get("bl");
 
             rightWheel.setDirection(DcMotorSimple.Direction.REVERSE); //rightWheel
             backRightWheel.setDirection(DcMotorSimple.Direction.REVERSE); //

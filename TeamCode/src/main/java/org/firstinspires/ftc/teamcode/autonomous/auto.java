@@ -1,30 +1,28 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 @Autonomous(name="auto1", group="Training")
 public class auto extends LinearOpMode {
-    autofunctionlibrary robot = new autofunctionlibrary();
+
 
     @Override
     public void runOpMode() {
-        robot.initialization();
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        waitForStart();
-        while(opModeIsActive()){
-            robot.encoderMovement(10, 1, 0.5);
 
-            robot.encoderMovement(10, 4, 0.5);
+        Trajectory trajectoryForward = drive.trajectoryBuilder(new Pose2d())
+                .forward(50)
+                .build();
 
-            robot.encoderMovement(10, 2, 0.5);
 
-            robot.encoderMovement(10, 3, 0.5);
-
-            robot.turn(35); //left
-
-            robot.turn(-35); //right
-        break;
+        while (opModeIsActive() && !isStopRequested()) {
+            drive.followTrajectory(trajectoryForward);
         }
 
 

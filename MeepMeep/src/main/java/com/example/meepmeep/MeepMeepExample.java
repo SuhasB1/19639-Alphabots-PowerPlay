@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
+import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedLight;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
@@ -13,15 +14,23 @@ public class MeepMeepExample {
         MeepMeep meepMeep = new MeepMeep(800);
 
         RoadRunnerBotEntity autored1 = new DefaultBotBuilder(meepMeep)
-                .setColorScheme(new ColorSchemeBlueDark())
+                .setColorScheme(new ColorSchemeRedLight())
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(90)))
 //                                .lineToLinearHeading(new Pose2d(37,-12, Math.toRadians(-10)))
 //                                .strafeTo(new Vector2d(30, 2))
-                                .turn(Math.toRadians(-100))
+                                .lineToConstantHeading(new Vector2d(37, 0))
+                                .turn(Math.toRadians(-120))
+
+                                /*
+                                .lineToConstantHeading(new Vector2d(35, -15))
+                                .turn(Math.toRadians(-90))
                                 .strafeTo(new Vector2d(35,0))
+                                .turn(Math.toRadians(-20))
+
+                                 */
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
 

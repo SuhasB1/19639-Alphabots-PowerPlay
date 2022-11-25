@@ -37,8 +37,12 @@ public class autored1 extends LinearOpMode {
 
         Pose2d startPose = new Pose2d(35, -60, Math.toRadians(90));
 
-        drive.setPoseEstimate(startPose);
+        Pose2d Pose2 = new Pose2d(35, -60,Math.toRadians(-10));
 
+        Pose2d Pose3 = new Pose2d(37, -15, Math.toRadians(90));
+
+        drive.setPoseEstimate(startPose);
+        //first test of path
         Trajectory traj1 = drive.trajectoryBuilder(startPose) //splines may have to be in separate trajectories test it out!
                 .lineToLinearHeading(new Pose2d(34,-12, Math.toRadians(-10)))
 
@@ -47,12 +51,35 @@ public class autored1 extends LinearOpMode {
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
                 .strafeTo(new Vector2d(30, 2))
                 .build();
+        // end of first test of path
 
+        // second test of path
+        Trajectory traj3 = drive.trajectoryBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(35, -35))
+                .build();
+
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
+                .splineToLinearHeading(new Pose2d(36,0), Math.toRadians(0))
+                .build();
+
+        Trajectory traj5 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))))
+                .strafeTo(new Vector2d(33,2))
+                .build();
+
+        Trajectory traj6 = drive.trajectoryBuilder(traj5.end().plus(new Pose2d(0, 0, Math.toRadians(-17))))
+                .back(4)
+                .build();
+
+        //end of second test of path
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            drive.followTrajectory(traj1);
-            drive.followTrajectory(traj2);
+            drive.followTrajectory(traj3);
+            drive.turn(Math.toRadians(0));
+            sleep(500);
+            drive.followTrajectory(traj5);
+            drive.turn(Math.toRadians(-17));
+            drive.followTrajectory(traj6);
             break;
 
 

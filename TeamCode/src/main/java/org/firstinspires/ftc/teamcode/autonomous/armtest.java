@@ -26,7 +26,6 @@ public class armtest extends LinearOpMode {
         rhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        lhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("Ticks:", lhArmMotor.getCurrentPosition());

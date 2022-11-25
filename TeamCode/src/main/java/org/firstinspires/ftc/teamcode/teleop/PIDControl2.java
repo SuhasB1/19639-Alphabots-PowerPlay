@@ -155,7 +155,7 @@ public class PIDControl2 extends LinearOpMode {
 
         double output = (error * Kp) + (derivative * Kd) + (integralSum * Ki) + Kg;
         return output;
-    }
+    }tested not final stuff
     */
 }
 

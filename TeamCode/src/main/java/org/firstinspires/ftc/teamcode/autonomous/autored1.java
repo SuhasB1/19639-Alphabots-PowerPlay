@@ -58,15 +58,12 @@ public class autored1 extends LinearOpMode {
                 .lineToConstantHeading(new Vector2d(35, -35))
                 .build();
 
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .splineToLinearHeading(new Pose2d(36,0), Math.toRadians(0))
-                .build();
 
-        Trajectory traj5 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))))
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))))
                 .strafeTo(new Vector2d(33,2))
                 .build();
 
-        Trajectory traj6 = drive.trajectoryBuilder(traj5.end().plus(new Pose2d(0, 0, Math.toRadians(-17))))
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end().plus(new Pose2d(0, 0, Math.toRadians(-17))))
                 .back(4)
                 .build();
 
@@ -77,9 +74,9 @@ public class autored1 extends LinearOpMode {
             drive.followTrajectory(traj3);
             drive.turn(Math.toRadians(0));
             sleep(500);
-            drive.followTrajectory(traj5);
+            drive.followTrajectory(traj4);
             drive.turn(Math.toRadians(-17));
-            drive.followTrajectory(traj6);
+            drive.followTrajectory(traj5);
             break;
 
 

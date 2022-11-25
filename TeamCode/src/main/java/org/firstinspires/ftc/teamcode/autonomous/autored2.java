@@ -48,11 +48,29 @@ public class autored2 extends LinearOpMode {
                 .strafeTo(new Vector2d(-29, 2))
                 .build();
 
+        Trajectory traj3 = drive.trajectoryBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(-32, -35))
+                .build();
+
+
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(90))))
+                .strafeTo(new Vector2d(-31,2))
+                .build();
+
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end().plus(new Pose2d(0, 0, Math.toRadians(9))))
+                .back(4)
+                .build();
+
+        //end of second test of path
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            drive.followTrajectory(traj1);
-            drive.followTrajectory(traj2);
+            drive.followTrajectory(traj3);
+            drive.turn(Math.toRadians(90));
+            sleep(500);
+            drive.followTrajectory(traj4);
+            drive.turn(Math.toRadians(9));
+            drive.followTrajectory(traj5);
             break;
 
 

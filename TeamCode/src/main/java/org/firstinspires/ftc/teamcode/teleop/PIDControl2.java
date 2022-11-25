@@ -19,7 +19,7 @@ public class PIDControl2 extends LinearOpMode {
     Servo fourBarServo;
     Servo fourBarServo2;
 
-    public static double Kp = 0.01;
+    public static double Kp = 0.001;
     public static double Ki = 0;
     public static double Kd = 0;
     public static double Kg = 0; //gravity feedforward constant (not needed for hor slides)
@@ -27,7 +27,7 @@ public class PIDControl2 extends LinearOpMode {
     public static double maxMotorTicks = 650;
 
     double integralSum = 0;
-    double pos = 0.4;
+    public static double pos = 0.4;
 
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime timer2 = new ElapsedTime();

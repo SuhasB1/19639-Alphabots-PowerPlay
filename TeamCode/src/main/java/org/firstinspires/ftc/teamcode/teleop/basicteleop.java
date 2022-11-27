@@ -19,6 +19,8 @@ public class basicteleop extends OpMode {
     DcMotor rightWheel;
     DcMotor backLeftWheel;
     DcMotor backRightWheel;
+    Servo fourBarServo;
+    Servo fourBarServo2;
 
 
 
@@ -31,7 +33,17 @@ public class basicteleop extends OpMode {
         backRightWheel = hardwareMap.dcMotor.get("rightRear");
         backLeftWheel = hardwareMap.dcMotor.get("leftRear");
 
-        backLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE); //rightWheel
+        fourBarServo = hardwareMap.servo.get("fourBarServo");
+        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
+        fourBarServo.setDirection(Servo.Direction.REVERSE);
+
+
+
+        leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         leftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

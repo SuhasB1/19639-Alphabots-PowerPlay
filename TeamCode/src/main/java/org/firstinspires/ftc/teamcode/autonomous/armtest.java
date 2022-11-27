@@ -13,24 +13,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class armtest extends LinearOpMode {
 
     DcMotor lhArmMotor;
-    DcMotor rhArmMotor;
 
 
     @Override
     public void runOpMode() {
 
-        lhArmMotor = hardwareMap.dcMotor.get("lhArmMotor");
+        lhArmMotor = hardwareMap.dcMotor.get("vertMotor");
         lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rhArmMotor = hardwareMap.dcMotor.get("rhArmMotor");
-        rhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("Ticks:", lhArmMotor.getCurrentPosition());
-            telemetry.addData("Ticks:", rhArmMotor.getCurrentPosition());
-
             telemetry.update();
         }
     }

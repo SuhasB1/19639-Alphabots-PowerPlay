@@ -16,15 +16,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class VertPID extends LinearOpMode {
     DcMotorEx motor1;
 
-    Servo fourBarServo;
-    Servo fourBarServo2;
 
-    public static double Kp = 0;
+
+    public static double Kp = 0.003;
     public static double Ki = 0;
     public static double Kd = 0;
     public static double Kg = 0.1; //gravity feedforward constant (not needed for hor slides)
-    public static double targetPosition = 100;
-    public static double maxMotorTicks = 650;
+    public static double targetPos = 100;
+    public static double maxMotorTicks = 2000;
 
     double integralSum = 0;
     public static double pos = 0.4;
@@ -39,13 +38,7 @@ public class VertPID extends LinearOpMode {
     @Override
     public void runOpMode() {
         motor1 = hardwareMap.get(DcMotorEx.class,"vertMotor");
-        fourBarServo = hardwareMap.servo.get("fourBarServo");
-        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
-        fourBarServo.setDirection(Servo.Direction.REVERSE);
-        fourBarServo.setPosition(pos);
-        fourBarServo2.setPosition(pos);
-        fourBarServo.getController().pwmEnable();
-        fourBarServo2.getController().pwmEnable();
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -74,33 +67,29 @@ public class VertPID extends LinearOpMode {
             dashboard.setTelemetryTransmissionInterval(25);
 
             packet.put("positionRH", motor1.getCurrentPosition());
-            packet.put("targetPosition", targetPosition);
+            packet.put("targetPosition", targetPos);
             dashboard.sendTelemetryPacket(packet);
 
-            updateLiftDrive();
+            updateLiftDrive(targetPos);
             }
 
         }
-    public void updateLiftDrive(){
+    public void updateLiftDrive(double targetPos){
+        double targetPosition = targetPos;
         double currentLiftPosition = motor1.getCurrentPosition();  // Get the position of the lift in ticks
 
         double liftError = targetPosition - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
         double liftPower = 0;
-        double liftPower2 = 0;
 
         if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
-            double derivative = (liftError - lastError) / timer.seconds();
-            lastError = liftError;
 
-            timer.reset();
+            liftPower = ((liftError * Kp)+ + .1); // PID with P and D factor plus feed forward
 
-            liftPower = ((liftError * Kp)+ (derivative + Kd) + .05); // PID with P and D factor plus feed forward
-
-            if (liftPower > .7){
-                liftPower = .7;
+            if (liftPower > .5){
+                liftPower = .5;
             }
-            if (liftPower < -.7){
-                liftPower = -.7;
+            if (liftPower < -.5){
+                liftPower = -.5;
             }
         }
         else {

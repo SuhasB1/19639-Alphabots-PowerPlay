@@ -55,15 +55,15 @@ public class autored1 extends LinearOpMode {
 
         // second test of path
         Trajectory traj3 = drive.trajectoryBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(35, -35))
+                .lineToConstantHeading(new Vector2d(35, -38))
                 .build();
 
 
         Trajectory traj4 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))))
-                .strafeTo(new Vector2d(33,2))
+                .strafeTo(new Vector2d(33,3))
                 .build();
 
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end().plus(new Pose2d(0, 0, Math.toRadians(-17))))
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end().plus(new Pose2d(0, 0, Math.toRadians(-13))))
                 .back(4)
                 .build();
 
@@ -75,8 +75,9 @@ public class autored1 extends LinearOpMode {
             drive.turn(Math.toRadians(0));
             sleep(500);
             drive.followTrajectory(traj4);
-            drive.turn(Math.toRadians(-17));
+            drive.turn(Math.toRadians(-13));
             drive.followTrajectory(traj5);
+
             break;
 
 

@@ -19,7 +19,7 @@ public class PIDControl2 extends LinearOpMode {
     Servo fourBarServo;
     Servo fourBarServo2;
 
-    public static double Kp = 0.001;
+    public static double Kp = 0.003;
     public static double Ki = 0;
     public static double Kd = 0;
     public static double Kg = 0; //gravity feedforward constant (not needed for hor slides)
@@ -95,18 +95,14 @@ public class PIDControl2 extends LinearOpMode {
         double liftPower2 = 0;
 
         if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
-            double derivative = (liftError - lastError) / timer.seconds();
-            lastError = liftError;
 
-            timer.reset();
+            liftPower = ((liftError * Kp)+ .05); // PID with P and D factor plus feed forward
 
-            liftPower = ((liftError * Kp)+ (derivative + Kd) + .05); // PID with P and D factor plus feed forward
-
-            if (liftPower > .7){
-                liftPower = .7;
+            if (liftPower > .5){
+                liftPower = .5;
             }
-            if (liftPower < -.7){
-                liftPower = -.7;
+            if (liftPower < -.5){
+                liftPower = -.5;
             }
         }
         else {
@@ -118,18 +114,14 @@ public class PIDControl2 extends LinearOpMode {
         telemetry.update();
 
         if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
-            double derivative2 = (liftError2 - lastError2) / timer2.seconds();
-            lastError2 = liftError2;
 
-            timer2.reset();
+            liftPower2 = ((liftError2 * Kp)+ .05);   		// PID with P only factor plus feed forward
 
-            liftPower2 = ((liftError2 * Kp)+ (derivative2 + Kd) + .05);   		// PID with P only factor plus feed forward
-
-            if (liftPower2 > .7){
-                liftPower2 = .7;
+            if (liftPower2 > .5){
+                liftPower2 = .5;
             }
-            if (liftPower2 < -.7){
-                liftPower2 = -.7;
+            if (liftPower2 < -.5){
+                liftPower2 = -.5;
             }
         }
         else {

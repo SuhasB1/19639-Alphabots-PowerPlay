@@ -19,29 +19,32 @@
         * SOFTWARE.
         */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-import com.acmerobotics.dashboard.FtcDashboard;
-
 
 import java.util.ArrayList;
 
-@TeleOp
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
+@Autonomous(name="autoblue1simpl")
+public class autoblue1simplified extends LinearOpMode
 {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
+    double parkingPos;
 
     // Lens intrinsics
     // UNITS ARE PIXELS
@@ -65,6 +68,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
     @Override
     public void runOpMode()
     {
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
@@ -87,6 +91,23 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
 
         telemetry.setMsTransmissionInterval(50);
 
+        Pose2d startPose = new Pose2d(35, 60, Math.toRadians(270));
+
+        drive.setPoseEstimate(startPose);
+
+        Trajectory main = drive.trajectoryBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(35, 34))
+
+                .build();
+
+        Trajectory left = drive.trajectoryBuilder(main.end())
+                .strafeTo(new Vector2d(58, 34))
+                .build();
+
+        Trajectory right = drive.trajectoryBuilder(main.end())
+                .strafeTo(new Vector2d(12, 34))
+                .build();
+
         /*
          * The INIT-loop:
          * This REPLACES waitForStart!
@@ -94,6 +115,10 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         while (!isStarted() && !isStopRequested())
         {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+            /*
+            Trajectory building in init
+             */
+
 
             if(currentDetections.size() != 0)
             {
@@ -169,17 +194,31 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         }
 
         /* Actually do something useful */
-        if(tagOfInterest == null || tagOfInterest.id == LEFT){
+        if(tagOfInterest == null || tagOfInterest.id == MIDDLE){
+            drive.followTrajectory(main);
+
+
+
             //trajectory
-        }else if(tagOfInterest.id == MIDDLE){
+        }else if(tagOfInterest.id == LEFT){
             //trajectory
+            drive.followTrajectory(main);
+            drive.followTrajectory(left);
+
+
+
+
         }else{
             //trajectory
+            drive.followTrajectory(main);
+            drive.followTrajectory(right);
+
         }
 
 
         /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive()) {sleep(20);}
+        while (opModeIsActive()) {
+            sleep(20);}
     }
 
     void tagToTelemetry(AprilTagDetection detection)
@@ -192,4 +231,6 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
+
+
 }

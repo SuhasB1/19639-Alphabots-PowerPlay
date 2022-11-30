@@ -18,7 +18,7 @@ public class VertPID extends LinearOpMode {
 
 
 
-    public static double Kp = 0.003;
+    public static double Kp = 0.1;
     public static double Ki = 0;
     public static double Kd = 0;
     public static double Kg = 0.1; //gravity feedforward constant (not needed for hor slides)
@@ -27,11 +27,6 @@ public class VertPID extends LinearOpMode {
 
     double integralSum = 0;
     public static double pos = 0.4;
-
-    ElapsedTime timer = new ElapsedTime();
-    ElapsedTime timer2 = new ElapsedTime();
-    private double lastError = 0;
-    private double lastError2 = 0;
 
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -70,11 +65,11 @@ public class VertPID extends LinearOpMode {
             packet.put("targetPosition", targetPos);
             dashboard.sendTelemetryPacket(packet);
 
-            updateLiftDrive(targetPos);
+            updateLiftDrive(targetPos, motor1);
             }
 
         }
-    public void updateLiftDrive(double targetPos){
+    public void updateLiftDrive(double targetPos, DcMotor motor1){
         double targetPosition = targetPos;
         double currentLiftPosition = motor1.getCurrentPosition();  // Get the position of the lift in ticks
 
@@ -85,11 +80,11 @@ public class VertPID extends LinearOpMode {
 
             liftPower = ((liftError * Kp)+ + .1); // PID with P and D factor plus feed forward
 
-            if (liftPower > .5){
-                liftPower = .5;
+            if (liftPower > .9){
+                liftPower = .9;
             }
-            if (liftPower < -.5){
-                liftPower = -.5;
+            if (liftPower < -.9){
+                liftPower = -.9;
             }
         }
         else {

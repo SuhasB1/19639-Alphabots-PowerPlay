@@ -219,9 +219,6 @@ public class autored1simplified extends LinearOpMode
         }
 
 
-        /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive()) {
-            sleep(20);}
     }
 
     void tagToTelemetry(AprilTagDetection detection)

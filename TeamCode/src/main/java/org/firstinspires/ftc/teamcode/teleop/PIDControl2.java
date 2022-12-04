@@ -29,10 +29,6 @@ public class PIDControl2 extends LinearOpMode {
     double integralSum = 0;
     public static double pos = 0.4;
 
-    ElapsedTime timer = new ElapsedTime();
-    ElapsedTime timer2 = new ElapsedTime();
-    private double lastError = 0;
-    private double lastError2 = 0;
 
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -96,7 +92,7 @@ public class PIDControl2 extends LinearOpMode {
 
         if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * Kp)+ .05); // PID with P and D factor plus feed forward
+            liftPower = ((liftError * Kp) + .05); // PID with P and D factor plus feed forward
 
             if (liftPower > .5){
                 liftPower = .5;
@@ -115,7 +111,7 @@ public class PIDControl2 extends LinearOpMode {
 
         if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower2 = ((liftError2 * Kp)+ .05);   		// PID with P only factor plus feed forward
+            liftPower2 = ((liftError2 * Kp) + .05);   		// PID with P only factor plus feed forward
 
             if (liftPower2 > .5){
                 liftPower2 = .5;

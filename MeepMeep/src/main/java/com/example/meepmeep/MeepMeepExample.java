@@ -11,6 +11,8 @@ import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedLight;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
+import java.util.Vector;
+
 public class MeepMeepExample {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
@@ -20,20 +22,26 @@ public class MeepMeepExample {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-35, -60, Math.toRadians(90)))
+                        drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(270)))
 //                                .lineToLinearHeading(new Pose2d(37,-12, Math.toRadians(-10)))
 //                                .strafeTo(new Vector2d(30, 2))
-                                .lineToConstantHeading(new Vector2d(-35, -34))
-                                .strafeTo(new Vector2d(-12, -34))
+//                                .lineToConstantHeading(new Vector2d(-35, -34))
+//                                .strafeTo(new Vector2d(-12, -34))
 
 
-                                /*
-                                .lineToConstantHeading(new Vector2d(35, -15))
-                                .turn(Math.toRadians(-90))
-                                .strafeTo(new Vector2d(35,0))
-                                .turn(Math.toRadians(-20))
 
-                                 */
+//                                .lineToConstantHeading(new Vector2d(35, -15))
+//                                .turn(Math.toRadians(-90))
+//                                .strafeTo(new Vector2d(35,0))
+//                                .turn(Math.toRadians(-20))
+
+                                .lineToConstantHeading(new Vector2d(35,-12))
+                                .strafeTo(new Vector2d(23, -12))
+                                .waitSeconds(3)
+                                .strafeTo(new Vector2d(12, -12))
+
+
+
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
 
@@ -50,9 +58,16 @@ public class MeepMeepExample {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-35, -60, Math.toRadians(90)))
-                                .lineToLinearHeading(new Pose2d(-37,-12, Math.toRadians(200)))
-                                .strafeTo(new Vector2d(-30, 2))
+                        drive.trajectorySequenceBuilder(new Pose2d(-35, -60, Math.toRadians(270)))
+//                                .lineToLinearHeading(new Pose2d(-37,-12, Math.toRadians(200)))
+//                                .strafeTo(new Vector2d(-30, 2))
+
+                                .lineToConstantHeading(new Vector2d(-35,-12))
+                                .strafeTo(new Vector2d(-23, -12))
+                                .waitSeconds(3)
+                                .strafeTo(new Vector2d(-12, -12))
+                                .strafeTo(new Vector2d(-60, -12))
+
 
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
@@ -71,8 +86,19 @@ public class MeepMeepExample {
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(35, 60, Math.toRadians(270)))
-                                .lineToConstantHeading(new Vector2d(35, 34))
-                                .strafeTo(new Vector2d(12, 34))
+//                                .lineToConstantHeading(new Vector2d(35, 34))
+//                                .strafeTo(new Vector2d(12, 34))
+                                .lineToConstantHeading(new Vector2d(35,12))
+                                .strafeTo(new Vector2d(23, 12))
+                                .waitSeconds(1)
+                                .strafeTo(new Vector2d(60, 12))
+                                .waitSeconds(1)
+                                .strafeTo(new Vector2d(12, 12))
+                                .waitSeconds(1)
+                                .strafeTo(new Vector2d(35,12))
+
+
+
 
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
@@ -91,8 +117,16 @@ public class MeepMeepExample {
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-35, 60, Math.toRadians(270)))
-                                .lineToConstantHeading(new Vector2d(-35, 34))
-                                .strafeTo(new Vector2d(-12, 34))
+//                                .lineToConstantHeading(new Vector2d(-35, 34))
+//                                .strafeTo(new Vector2d(-12, 34))
+                                .lineToConstantHeading(new Vector2d(-35,12))
+                                .strafeTo(new Vector2d(-23, 12))
+                                .waitSeconds(1)
+                                .strafeTo(new Vector2d(-12, 12))
+                                .waitSeconds(1)
+                                .strafeTo(new Vector2d(-60, 12))
+                                .waitSeconds(1)
+                                .strafeTo(new Vector2d(-35,12))
 
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
@@ -109,9 +143,9 @@ public class MeepMeepExample {
         meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(autored1)
-                .addEntity(autored2)
-                .addEntity(autoblue1)
+                //.addEntity(autored1)
+                //.addEntity(autored2)
+                //.addEntity(autoblue1)
                 .addEntity(autoblue2)
                 .start();
     }

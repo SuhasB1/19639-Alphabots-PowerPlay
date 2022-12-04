@@ -42,16 +42,7 @@ public class autored1 extends LinearOpMode {
         Pose2d Pose3 = new Pose2d(37, -15, Math.toRadians(90));
 
         drive.setPoseEstimate(startPose);
-        //first test of path
-        Trajectory traj1 = drive.trajectoryBuilder(startPose) //splines may have to be in separate trajectories test it out!
-                .lineToLinearHeading(new Pose2d(34,-12, Math.toRadians(-10)))
 
-                .build();
-
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .strafeTo(new Vector2d(30, 2))
-                .build();
-        // end of first test of path
 
         // second test of path
         Trajectory traj3 = drive.trajectoryBuilder(startPose)

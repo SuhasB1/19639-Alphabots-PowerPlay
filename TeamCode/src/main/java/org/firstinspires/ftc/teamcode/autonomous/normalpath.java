@@ -28,7 +28,7 @@ import java.util.Vector;
  * is recommended that you use the FollowerPIDTuner opmode for further fine tuning.
  */
 @Config
-@Autonomous(group = "drive")
+
 public class normalpath extends LinearOpMode {
 
     public static double DISTANCE = 50;

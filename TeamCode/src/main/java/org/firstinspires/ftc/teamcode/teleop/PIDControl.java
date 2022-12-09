@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-@Autonomous(name="PIDControl", group="Training")
+
 public class PIDControl extends LinearOpMode {
     DcMotorEx motor1;
     DcMotorEx motor2;

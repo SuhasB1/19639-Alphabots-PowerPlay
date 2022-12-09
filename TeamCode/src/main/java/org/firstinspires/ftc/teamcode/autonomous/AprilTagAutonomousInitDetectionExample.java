@@ -35,7 +35,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 
 import java.util.ArrayList;
 
-@TeleOp
 public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
 {
     OpenCvCamera camera;

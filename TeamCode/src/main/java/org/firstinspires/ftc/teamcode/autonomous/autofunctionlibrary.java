@@ -19,7 +19,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Config
-@Autonomous(name="autoFuncs", group="Training")
 public class autofunctionlibrary extends LinearOpMode {
 
     DcMotor leftWheel;

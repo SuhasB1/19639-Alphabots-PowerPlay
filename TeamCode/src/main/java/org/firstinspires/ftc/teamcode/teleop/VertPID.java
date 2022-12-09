@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name="VertPID", group="Training")
 public class VertPID extends LinearOpMode {
     DcMotorEx motor1;
 

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Disabled
-@Autonomous(name="linearslide", group="Training")
+
 public class linearslide extends LinearOpMode {
 
     DcMotor leftWheel;

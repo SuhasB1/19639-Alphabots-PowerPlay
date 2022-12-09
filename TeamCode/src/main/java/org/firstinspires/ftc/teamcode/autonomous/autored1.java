@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
@@ -29,13 +30,16 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * is recommended that you use the FollowerPIDTuner opmode for further fine tuning.
  */
 @Config
-@Autonomous(name="autored1",group = "drive")
 public class autored1 extends LinearOpMode {
 
     public static double DISTANCE = 50;
     DcMotor vertMotor;
     DcMotor rhArmMotor;
     DcMotor lhArmMotor;
+    Servo fourBarServo;
+    Servo fourBarServo2;
+    public static double pos = 0.5;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -77,6 +81,20 @@ public class autored1 extends LinearOpMode {
         rhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        fourBarServo = hardwareMap.servo.get("fourBarServo");
+        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
+        fourBarServo.setDirection(Servo.Direction.REVERSE);
+
+
+        fourBarServo.setPosition(pos * 0.25);
+        fourBarServo2.setPosition(pos * 0.25);
+        fourBarServo.setPosition(pos * 0.5);
+        fourBarServo2.setPosition(pos * 0.5);
+        fourBarServo.setPosition(pos * 0.75);
+        fourBarServo2.setPosition(pos * 0.75);
+        fourBarServo.setPosition(pos);
+        fourBarServo2.setPosition(pos);
+
 
 
         //end of second test of path
@@ -159,13 +177,13 @@ public class autored1 extends LinearOpMode {
 
         if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * 0.4)+ + .1); // PID with P and D factor plus feed forward
+            liftPower = ((liftError * 0.1)+ + .1); // PID with P and D factor plus feed forward
 
-            if (liftPower > .5){
-                liftPower = .5;
+            if (liftPower > .9){
+                liftPower = .9;
             }
-            if (liftPower < -.5){
-                liftPower = -.5;
+            if (liftPower < -.9){
+                liftPower = -.9;
             }
         }
         else {

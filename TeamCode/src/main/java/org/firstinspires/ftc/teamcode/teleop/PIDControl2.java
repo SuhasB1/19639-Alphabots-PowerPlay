@@ -12,18 +12,18 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name="PIDControl2", group="Training")
+
 public class PIDControl2 extends LinearOpMode {
     DcMotorEx motor1;
     DcMotorEx motor2;
     Servo fourBarServo;
     Servo fourBarServo2;
 
-    public static double Kp = 0.003;
+    public static double Kp = 0.005;
     public static double Ki = 0;
     public static double Kd = 0;
     public static double Kg = 0; //gravity feedforward constant (not needed for hor slides)
-    public static double targetPosition = 100;
+    public static double targetPosition = 325;
     public static double maxMotorTicks = 650;
 
     double integralSum = 0;
@@ -92,13 +92,13 @@ public class PIDControl2 extends LinearOpMode {
 
         if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * Kp) + .05); // PID with P and D factor plus feed forward
+            liftPower = ((liftError * Kp)); // PID with P and D factor plus feed forward
 
-            if (liftPower > .5){
-                liftPower = .5;
+            if (liftPower > .7){
+                liftPower = .7;
             }
-            if (liftPower < -.5){
-                liftPower = -.5;
+            if (liftPower < -.7){
+                liftPower = -.7;
             }
         }
         else {
@@ -113,11 +113,11 @@ public class PIDControl2 extends LinearOpMode {
 
             liftPower2 = ((liftError2 * Kp) + .05);   		// PID with P only factor plus feed forward
 
-            if (liftPower2 > .5){
-                liftPower2 = .5;
+            if (liftPower2 > .7){
+                liftPower2 = .7;
             }
-            if (liftPower2 < -.5){
-                liftPower2 = -.5;
+            if (liftPower2 < -.7){
+                liftPower2 = -.7;
             }
         }
         else {

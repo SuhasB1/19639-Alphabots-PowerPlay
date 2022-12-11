@@ -27,7 +27,9 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -36,13 +38,9 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.firstinspires.ftc.teamcode.autonomous.SleeveDetection;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
-@Autonomous(name="autored1simpl")
-public class autored1simplified extends LinearOpMode
+@Autonomous(name="Auto_RED1")
+public class aaRED_1_AUTO extends LinearOpMode
 {
     private SleeveDetection sleeveDetection;
     private OpenCvCamera camera;
@@ -51,6 +49,9 @@ public class autored1simplified extends LinearOpMode
 
     Servo fourBarServo;
     Servo fourBarServo2;
+    DcMotor rhArmMotor;
+    DcMotor lhArmMotor;
+    public double targetPositionHor = 0;
     public static double pos = 0.5;
     SleeveDetection.ParkingPosition snapshot = SleeveDetection.ParkingPosition.CENTER; //default
 
@@ -58,6 +59,27 @@ public class autored1simplified extends LinearOpMode
     public void runOpMode()
     {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        rhArmMotor = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
+        lhArmMotor = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
+
+        rhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        rhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        rhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        fourBarServo = hardwareMap.servo.get("fourBarServo");
+        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
+
+        fourBarServo.setDirection(Servo.Direction.REVERSE);
+        fourBarServo.setPosition(0.5);
+        fourBarServo2.setPosition(0.5);
+
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         sleeveDetection = new SleeveDetection();
@@ -97,6 +119,8 @@ public class autored1simplified extends LinearOpMode
                 .strafeTo(new Vector2d(58, -34))
                 .build();
 
+
+
         /*
          * The INIT-loop:
          * This REPLACES waitForStart!
@@ -124,21 +148,80 @@ public class autored1simplified extends LinearOpMode
         while(opModeIsActive()){
             switch(snapshot){
                 case LEFT:
+                    horSlidesPID(0);
+
                     drive.followTrajectory(main);
                     drive.followTrajectory(left);
+                    fourBarServo.setPosition(0.875);
+                    fourBarServo2.setPosition(0.875);
+                    sleep(2000);
                     break;
                 case RIGHT:
+                    horSlidesPID(0);
                     drive.followTrajectory(main);
                     drive.followTrajectory(right);
+                    fourBarServo.setPosition(0.875);
+                    fourBarServo2.setPosition(0.875);
+                    sleep(2000);
                     break;
                 case CENTER:
+                    horSlidesPID(0);
                     drive.followTrajectory(main);
+                    fourBarServo.setPosition(0.875);
+                    fourBarServo2.setPosition(0.875);
+                    sleep(2000);
                     break;
             }
             break;
 
         }
 
+
+
+    }
+    public void horSlidesPID(double targetPosition){
+        double currentLiftPosition = rhArmMotor.getCurrentPosition();  // Get the position of the lift in ticks
+
+        double liftError = (targetPosition-5) - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
+        double liftPower = 0;
+        double liftError2 = (targetPosition-5) - lhArmMotor.getCurrentPosition();
+        double liftPower2 = 0;
+
+        if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
+
+            liftPower = ((liftError * 0.005)); // PID with P and D factor plus feed forward
+
+            if (liftPower > .65){
+                liftPower = .65;
+            }
+            if (liftPower < -.65){
+                liftPower = -.65;
+            }
+        }
+        else {
+
+            liftPower = 0;
+
+        } // end of if-else
+
+        if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
+
+            liftPower2 = ((liftError2 * 0.005));   		// PID with P only factor plus feed forward
+
+            if (liftPower2 > .65){
+                liftPower2 = .65;
+            }
+            if (liftPower2 < -.65){
+                liftPower2 = -.65;
+            }
+        }
+        else {
+            liftPower2 = 0;
+
+        }
+
+        rhArmMotor.setPower(liftPower);
+        lhArmMotor.setPower(liftPower);
 
 
     }

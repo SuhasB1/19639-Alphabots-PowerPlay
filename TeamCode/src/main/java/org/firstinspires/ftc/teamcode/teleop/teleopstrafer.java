@@ -26,11 +26,12 @@ public class teleopstrafer extends OpMode {
         CRServo intakeServo2;
 
         public static double pos = 0.77;
-        public static double pos2 = 0.333;
+        public static double pos2 = 0.335;
         public double targetPositionHor = 0;
         public double targetPositionVert = 0;
         public double multiplier = 1;
         boolean isSlowMode = false;
+        double maxVertPower = 0.7;
 
         public enum CYCLE1 {
             CYCLE_START,
@@ -99,10 +100,10 @@ public class teleopstrafer extends OpMode {
             intakeServo1 = hardwareMap.crservo.get("intakeServo1");
             intakeServo2 = hardwareMap.crservo.get("intakeServo2");
 
-            fourBarServo.setDirection(Servo.Direction.REVERSE);
             intakeServo1.setDirection(CRServo.Direction.REVERSE);
             intakeServo2.setDirection(CRServo.Direction.REVERSE);
 
+            fourBarServo.setDirection(Servo.Direction.REVERSE);
             fourBarServo.setPosition(0.5);
             fourBarServo2.setPosition(0.5);
 
@@ -124,37 +125,43 @@ public class teleopstrafer extends OpMode {
             vertSlidesPID(targetPositionVert);
 
             if(gamepad2.triangle){
+                maxVertPower = 0.7;
                 vertSlidesMovement("high");
             }
             if(gamepad2.square){
-                vertSlidesMovement("mid");
+                maxVertPower = 0.2;
+                vertSlidesMovement("almost");
             }
             if(gamepad2.cross){
+                maxVertPower = 0.5;
                 vertSlidesMovement("none");
             }
             if(gamepad2.dpad_up){
-                intakeServo1.setPower(0.4);
-                intakeServo2.setPower(0.4);
-            }
-
-            if(gamepad2.dpad_right){
-                intakeServo1.setPower(0.5);
-                intakeServo2.setPower(0.5);
-                servoFuncLoop(pos);
-                horSlidesMovement("close");
-            }
-            if(gamepad2.dpad_left){
                 intakeServo1.setPower(0.5);
                 intakeServo2.setPower(0.5);
                 servoFuncLoop(pos);
                 horSlidesMovement("half");
 
             }
+
+            if(gamepad2.dpad_right){
+                intakeServo1.setPower(0.5);
+                intakeServo2.setPower(0.5);
+                servoFuncLoop(pos);
+                horSlidesMovement("almost");
+            }
+            if(gamepad2.dpad_left){
+                intakeServo1.setPower(0.5);
+                intakeServo2.setPower(0.5);
+                servoFuncLoop(pos);
+                horSlidesMovement("close");
+
+            }
             if(gamepad2.dpad_down){
                 horSlidesMovement("none");
                 intakeServo1.setPower(0.5);
                 intakeServo2.setPower(0.5);
-                servoFuncLoop(0.3365);
+                servoFuncLoop(0.3685);
             }
             if(gamepad2.left_bumper){
                 fourBarServo.setPosition(0.875);
@@ -164,19 +171,27 @@ public class teleopstrafer extends OpMode {
             if(gamepad2.right_bumper){
                 servoOuttakeFunc(pos2);
             }
-            if(gamepad1.x){
-                if(!isSlowMode){
-                    multiplier = 0.2;
-                    isSlowMode = true;
-                }
-                else{
-                    multiplier = 1;
-                    isSlowMode = false;
-                }
+            if(gamepad2.right_stick_button){
+                intakeServo1.setPower(-0.5);
+                intakeServo2.setPower(-0.5);
             }
-
-            CycleP1();
-            CycleP2();
+            if(gamepad2.left_stick_button){
+                servoFuncLoop(pos + 0.05);
+            }
+            if(gamepad1.left_bumper){
+                multiplier = 0.2;
+                isSlowMode = true;
+            }
+            if(gamepad1.right_bumper){
+                multiplier = 1;
+                isSlowMode = false;
+            }
+            if(gamepad2.share){
+                horSlidesMovement("none");
+                intakeServo1.setPower(0.5);
+                intakeServo2.setPower(0.5);
+                servoFuncLoop(pos);
+            }
             /*if(gamepad2.right_bumper){
                 horSlidesMovement("full");
                 sleep(2000);
@@ -218,15 +233,15 @@ public class teleopstrafer extends OpMode {
             double denominator = 1;
 
             drive = gamepad1.left_stick_y;
-            strafe = gamepad1.left_stick_x * 1.1;
-            rotate = gamepad1.right_stick_x;
+            strafe = gamepad1.right_stick_x * 1.1;
+            rotate = gamepad1.left_stick_x;
 
             driveForward = gamepad1.right_trigger;
             driveBackward = gamepad1.left_trigger;
 
             denominator = Math.max(Math.abs(drive) + Math.abs(strafe) + Math.abs(rotate), 1);
             if(driveForward > 0) {
-                rightWheel.setPower(-driveForward * multiplier);
+                rightWheel.setPower(-driveForward * (multiplier));
                 backRightWheel.setPower(-driveForward * multiplier);
                 leftWheel.setPower(-driveForward *multiplier);
                 backLeftWheel.setPower(-driveForward * multiplier);
@@ -237,9 +252,9 @@ public class teleopstrafer extends OpMode {
                 backLeftWheel.setPower(driveBackward * multiplier);
 
             } else {
-                rightWheel.setPower(((drive + strafe + rotate) / denominator) * multiplier);
-                backRightWheel.setPower(((drive - rotate + strafe) / denominator)*multiplier);
-                leftWheel.setPower(((drive - rotate - strafe) / denominator)*multiplier);
+                rightWheel.setPower(((drive + strafe  + rotate) / denominator) * multiplier);
+                backRightWheel.setPower(((drive - rotate + strafe) / denominator) * multiplier);
+                leftWheel.setPower(((drive - rotate - strafe) / denominator) * multiplier);
                 backLeftWheel.setPower(((drive + rotate - strafe) / denominator) * multiplier);
             }
         }
@@ -254,11 +269,8 @@ public class teleopstrafer extends OpMode {
             if(input.equals("high")){
                 targetPositionVert = 2300;
             }
-            else if(input.equals("mid")) {
-                targetPositionVert = 1800; //find exact pos
-            }
-            else if(input.equals("low")){
-                targetPositionVert = 1000; //find exact pos
+            else if(input.equals("almost")) {
+                targetPositionVert = 2120; //find exact pos
             }
             else if(input.equals("none")){
                 targetPositionVert = 0;
@@ -266,13 +278,16 @@ public class teleopstrafer extends OpMode {
     }
     public void horSlidesMovement(String input){
         if(input.equals("close")){
-            targetPositionHor = 100;
+            targetPositionHor = 390;
         }
         else if(input.equals("half")) {
-            targetPositionHor =324;
+            targetPositionHor =334;
         }
         else if(input.equals("none")){
             targetPositionHor = 0;
+        }
+        else if(input.equals("almost")){
+            targetPositionHor = 285;
         }
     }
 
@@ -284,13 +299,13 @@ public class teleopstrafer extends OpMode {
 
         if (liftError > 10 || liftError < -10){// Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * 0.05)+ + .1); // PID with P and D factor plus feed forward
+            liftPower = ((liftError * 0.03)+ + .1); // PID with P and D factor plus feed forward
 
-            if (liftPower > .8){
-                liftPower = .8;
+            if (liftPower > maxVertPower){
+                liftPower = maxVertPower;
             }
-            if (liftPower < -.8){
-                liftPower = -.8;
+            if (liftPower < -maxVertPower){
+                liftPower = -maxVertPower;
             }
         }
         else {
@@ -316,11 +331,11 @@ public class teleopstrafer extends OpMode {
 
             liftPower = ((liftError * 0.005)); // PID with P and D factor plus feed forward
 
-            if (liftPower > .65){
-                liftPower = .65;
+            if (liftPower > .5){
+                liftPower = .5;
             }
-            if (liftPower < -.65){
-                liftPower = -.65;
+            if (liftPower < -.5){
+                liftPower = -.5;
             }
         }
         else {
@@ -359,58 +374,54 @@ public class teleopstrafer extends OpMode {
             }
     }
     public void servoFunc(double pos){
-        intakeServo1.setPower(0.5);
-        intakeServo2.setPower(0.5);
 
         fourBarServo.setPosition(pos * 0.7);
         fourBarServo2.setPosition(pos * 0.7);
-        sleep(150);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.8);
         fourBarServo2.setPosition(pos * 0.8);
-        sleep(150);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.85);
         fourBarServo2.setPosition(pos * 0.85);
-        sleep(100);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.875);
         fourBarServo2.setPosition(pos * 0.875);
-        sleep(100);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.9);
         fourBarServo2.setPosition(pos * 0.9);
-        sleep(100);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.91);
         fourBarServo2.setPosition(pos * 0.91);
-        sleep(100);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.92);
         fourBarServo2.setPosition(pos * 0.92);
-        sleep(75);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.93);
         fourBarServo2.setPosition(pos * 0.93);
-        sleep(75);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.94);
         fourBarServo2.setPosition(pos * 0.94);
-        sleep(50);
+        sleep(200);
         fourBarServo.setPosition(pos * 0.95);
         fourBarServo2.setPosition(pos * 0.95);
-        sleep(50);
+        sleep(200);
         fourBarServo.setPosition(pos);
         fourBarServo2.setPosition(pos);
     }
     public void servoOuttakeFunc(double pos2){
         intakeServo1.setPower(0.5);
         intakeServo2.setPower(0.5);
-        for(double i = pos2/2; i <= pos2; i += 0.005){
-            fourBarServo.setPosition(i);
-            fourBarServo2.setPosition(i);
-            sleep(8);
-
-        }
+        fourBarServo.setPosition(pos2);
+        fourBarServo2.setPosition(pos2);
         intakeServo1.setPower(-0.2);
         intakeServo2.setPower(-0.5);
-        sleep(400);
-        intakeServo1.setPower(0);
-        intakeServo2.setPower(0);
+        sleep(500);
         fourBarServo.setPosition(0.5);
         fourBarServo2.setPosition(0.5);
+        sleep(100);
+        intakeServo1.setPower(0);
+        intakeServo2.setPower(0);
+
     }
     public void CycleP1(){
             switch(cycleState1){

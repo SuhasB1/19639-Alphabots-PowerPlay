@@ -38,7 +38,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Disabled
+
 @Autonomous(name="autored1test3")
 public class autored1test3 extends LinearOpMode
 {

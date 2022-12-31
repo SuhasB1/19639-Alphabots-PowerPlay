@@ -296,15 +296,15 @@ public class SampleMecanumDrive extends MecanumDrive {
         rightFront.setPower(v3);
     }
 
-    @Override
     public double getRawExternalHeading() {
-    return 0;
-   }
+        return 0;
+    }
 
-    @Override
+
     public Double getExternalHeadingVelocity() {
         return (double) imu.getAngularVelocity().zRotationRate;
     }
+
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
         return new MinVelocityConstraint(Arrays.asList(

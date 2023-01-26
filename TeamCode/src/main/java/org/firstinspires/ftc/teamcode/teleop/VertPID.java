@@ -12,20 +12,22 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
+@Autonomous (name="vertpid")
 public class VertPID extends LinearOpMode {
     DcMotorEx motor1;
 
 
 
-    public static double Kp = 0.1;
-    public static double Ki = 0;
-    public static double Kd = 0;
-    public static double Kg = 0.1; //gravity feedforward constant (not needed for hor slides)
-    public static double targetPos = 100;
+    public static double kD;
+    public static double kP = 0.03;
+    public static double targetPos = 0;
+    public static double kG = 0.1;
     public static double maxMotorTicks = 2000;
-
+    double maxVertPower = 0.7;
+    double derivative;
+    double lastError;
     double integralSum = 0;
-    public static double pos = 0.4;
+    public ElapsedTime runtime = new ElapsedTime();
 
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -54,6 +56,8 @@ public class VertPID extends LinearOpMode {
                 // motor1.setPower(power);
 
                 //dashboard.sendTelemetryPacket(packet);
+
+            sleep(5000);
             telemetry.addData("ticks rh" , motor1.getCurrentPosition());
 
             telemetry.update();
@@ -62,40 +66,50 @@ public class VertPID extends LinearOpMode {
 
             packet.put("positionRH", motor1.getCurrentPosition());
             packet.put("targetPosition", targetPos);
+            packet.put("error", lastError);
             dashboard.sendTelemetryPacket(packet);
 
-            updateLiftDrive(targetPos, motor1);
+            vertSlidesPID(targetPos);
+
+
             }
 
         }
-    public void updateLiftDrive(double targetPos, DcMotor motor1){
-        double targetPosition = targetPos;
+    public void vertSlidesPID(double pos){
+        runtime.startTime();
         double currentLiftPosition = motor1.getCurrentPosition();  // Get the position of the lift in ticks
 
-        double liftError = targetPosition - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
+        double liftError = targetPos - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
         double liftPower = 0;
+        derivative = (liftError - lastError) / runtime.seconds();
+        lastError = liftError;
 
-        if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
+        runtime.reset();
 
-            liftPower = ((liftError * Kp)+ + .1); // PID with P and D factor plus feed forward
 
-            if (liftPower > .9){
-                liftPower = .9;
+
+        if (liftError > 10 || liftError < -10){// Hysteresis band to provide damping/braking zone to reduce oscillations
+
+            liftPower = ((liftError * kP)  + (derivative * kD) +  kG); // PID with P and D factor plus feed forward
+
+            if (liftPower > maxVertPower){
+                liftPower = maxVertPower;
             }
-            if (liftPower < -.9){
-                liftPower = -.9;
+            if (liftPower < -maxVertPower){
+                liftPower = -maxVertPower;
             }
         }
         else {
 
-             liftPower = 0;
+            liftPower = 0;
 
         } // end of if-else
-        telemetry.addData("power1", liftPower);
-        telemetry.update();
 
 
         motor1.setPower(liftPower);
+
+
+    }
 
 
     }
@@ -112,7 +126,6 @@ public class VertPID extends LinearOpMode {
         return output;
     }tested not final stuff
     */
-}
 
 
 

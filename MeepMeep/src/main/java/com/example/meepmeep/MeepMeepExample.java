@@ -23,37 +23,7 @@ public class MeepMeepExample {
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(90)))
-//                                .lineToLinearHeading(new Pose2d(37,-12, Math.toRadians(-10)))
-//                                .strafeTo(new Vector2d(30, 2))
-//                                .lineToConstantHeading(new Vector2d(-35, -34))
-//                                .strafeTo(new Vector2d(-12, -34))
-
-
-
-//                                .lineToConstantHeading(new Vector2d(35, -15))
-//                                .turn(Math.toRadians(-90))
-//                                .strafeTo(new Vector2d(35,0))
-//                                .turn(Math.toRadians(-20))
-
-//                                .lineToConstantHeading(new Vector2d(35,-12))
-//                                .strafeTo(new Vector2d(23, -12))
-//                                .waitSeconds(3)
-//                                .strafeTo(new Vector2d(12, -12))
-
-                                .lineToConstantHeading(new Vector2d(35,-12))
-                                .strafeTo(new Vector2d(23, -12))
-                                .strafeTo(new Vector2d(12, -12))
-
-
-
-
-
-                                //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
-
-
-
-
-
+                                .lineToConstantHeading(new Vector2d(35, -2))
 
                                 .build()
                 );
@@ -67,11 +37,12 @@ public class MeepMeepExample {
 //                                .lineToLinearHeading(new Pose2d(-37,-12, Math.toRadians(200)))
 //                                .strafeTo(new Vector2d(-30, 2))
 
-                                .lineToConstantHeading(new Vector2d(-35,-12))
-                                .strafeTo(new Vector2d(-23, -12))
-                                .waitSeconds(3)
-                                .strafeTo(new Vector2d(-12, -12))
-                                .strafeTo(new Vector2d(-60, -12))
+//                                .lineToConstantHeading(new Vector2d(-35,-12))
+//                                .strafeTo(new Vector2d(-23, -12))
+//                                .waitSeconds(3)
+//                                .strafeTo(new Vector2d(-12, -12))
+//                                .strafeTo(new Vector2d(-60, -12))
+                                .lineToConstantHeading(new Vector2d(35, -2))
 
 
 

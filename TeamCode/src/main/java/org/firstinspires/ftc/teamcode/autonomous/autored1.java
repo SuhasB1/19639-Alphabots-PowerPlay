@@ -1,16 +1,20 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.android.dx.cf.direct.CodeObserver;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /*
@@ -30,6 +34,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * is recommended that you use the FollowerPIDTuner opmode for further fine tuning.
  */
 @Config
+@Autonomous
 public class autored1 extends LinearOpMode {
 
     public static double DISTANCE = 50;
@@ -38,7 +43,16 @@ public class autored1 extends LinearOpMode {
     DcMotor lhArmMotor;
     Servo fourBarServo;
     Servo fourBarServo2;
-    public static double pos = 0.5;
+    CRServo intakeServo1;
+    CRServo intakeServo2;
+
+    public static double kD = 0;
+    public static double pos = 0.77;
+    double maxVertPower = 0.7;
+    public static double targetPos = 0;
+    private final FtcDashboard dashboard = FtcDashboard.getInstance();
+
+
 
 
     @Override
@@ -47,26 +61,28 @@ public class autored1 extends LinearOpMode {
 
         Pose2d startPose = new Pose2d(35, -60, Math.toRadians(90));
 
-        Pose2d Pose2 = new Pose2d(35, -60,Math.toRadians(-10));
 
-        Pose2d Pose3 = new Pose2d(37, -15, Math.toRadians(90));
 
         drive.setPoseEstimate(startPose);
 
 
         // second test of path
-        Trajectory traj3 = drive.trajectoryBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(35, -35))
+        Trajectory traj1 = drive.trajectoryBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(35, -2))
                 .build();
 
 
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))))
-                .strafeTo(new Vector2d(33,2))
-                .build();
-
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end().plus(new Pose2d(0, 0, Math.toRadians(-17))))
+        Trajectory traj2 = drive.trajectoryBuilder(traj1.end().plus(new Pose2d(0, 0, Math.toRadians(-102))))
                 .back(4)
                 .build();
+
+        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+                .strafeLeft(6)
+                .build();
+
+
+
+
         vertMotor = hardwareMap.get(DcMotorEx.class,"vertMotor");
         rhArmMotor = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
         lhArmMotor = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
@@ -84,56 +100,63 @@ public class autored1 extends LinearOpMode {
         fourBarServo = hardwareMap.servo.get("fourBarServo");
         fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
         fourBarServo.setDirection(Servo.Direction.REVERSE);
-
-
-        fourBarServo.setPosition(pos * 0.25);
-        fourBarServo2.setPosition(pos * 0.25);
-        fourBarServo.setPosition(pos * 0.5);
-        fourBarServo2.setPosition(pos * 0.5);
-        fourBarServo.setPosition(pos * 0.75);
-        fourBarServo2.setPosition(pos * 0.75);
-        fourBarServo.setPosition(pos);
-        fourBarServo2.setPosition(pos);
+        vertSlidesPID(0);
+        horSlidesPID(0);
 
 
 
-        //end of second test of path
+//        fourBarServo.setPosition(pos * 0.25);
+//        fourBarServo2.setPosition(pos * 0.25);
+//        fourBarServo.setPosition(pos * 0.5);
+//        fourBarServo2.setPosition(pos * 0.5);
+//        fourBarServo.setPosition(pos * 0.75);
+//        fourBarServo2.setPosition(pos * 0.75);
+//        fourBarServo.setPosition(pos);
+//        fourBarServo2.setPosition(pos);
+
+
+
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            drive.followTrajectory(traj3);
-            drive.turn(Math.toRadians(0));
+            drive.followTrajectory(traj1);
             sleep(500);
-            drive.followTrajectory(traj4);
-            drive.turn(Math.toRadians(-17));
-            drive.followTrajectory(traj5);
-            updateLiftDriveHor(lhArmMotor,rhArmMotor,600);
-            sleep(5000);
-            updateLiftDriveVert(2300, vertMotor);
-            sleep(5000);
+            drive.turn(Math.toRadians(-102));
+            drive.followTrajectory(traj2);
+            drive.followTrajectory(traj3);
+            vertSlidesPID(2000);
+            sleep(2000);
+            vertSlidesPID(0);
+            sleep(2000);
+
+
+
+
+
+
 
             break;
 
 
         }
     }
-    public void updateLiftDriveHor(DcMotor motor1, DcMotor motor2, double targetPosition){
-        double currentLiftPosition = motor1.getCurrentPosition();  // Get the position of the lift in ticks
+    public void horSlidesPID(double targetPosition){
+        double currentLiftPosition = rhArmMotor.getCurrentPosition();  // Get the position of the lift in ticks
 
-        double liftError = targetPosition - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
+        double liftError = (targetPosition-5) - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
         double liftPower = 0;
-        double liftError2 = targetPosition - motor2.getCurrentPosition();
+        double liftError2 = (targetPosition-5) - lhArmMotor.getCurrentPosition();
         double liftPower2 = 0;
 
         if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * 0.003) + .05); // PID with P and D factor plus feed forward
+            liftPower = ((liftError * 0.005)); // PID with P and D factor plus feed forward
 
-            if (liftPower > .5){
-                liftPower = .5;
+            if (liftPower > .65){
+                liftPower = .65;
             }
-            if (liftPower < -.5){
-                liftPower = -.5;
+            if (liftPower < -.65){
+                liftPower = -.65;
             }
         }
         else {
@@ -141,49 +164,44 @@ public class autored1 extends LinearOpMode {
             liftPower = 0;
 
         } // end of if-else
-        telemetry.addData("power1", liftPower);
-        telemetry.update();
 
         if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower2 = ((liftError2 * 0.003) + .05);   		// PID with P only factor plus feed forward
+            liftPower2 = ((liftError2 * 0.005));   		// PID with P only factor plus feed forward
 
-            if (liftPower2 > .5){
-                liftPower2 = .5;
+            if (liftPower2 > .65){
+                liftPower2 = .65;
             }
-            if (liftPower2 < -.5){
-                liftPower2 = -.5;
+            if (liftPower2 < -.65){
+                liftPower2 = -.65;
             }
         }
         else {
             liftPower2 = 0;
 
         }
-        telemetry.addData("power2", liftPower2);
-        telemetry.update();
 
-        motor1.setPower(liftPower);
-        motor2.setPower(liftPower);
+        rhArmMotor.setPower(liftPower);
+        lhArmMotor.setPower(liftPower);
 
 
     }
 
-    public void updateLiftDriveVert(double targetPos, DcMotor motor1){
-        double targetPosition = targetPos;
-        double currentLiftPosition = motor1.getCurrentPosition();  // Get the position of the lift in ticks
+    public void vertSlidesPID(double targetPosition){
+        double currentLiftPosition = vertMotor.getCurrentPosition();  // Get the position of the lift in ticks
 
         double liftError = targetPosition - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
         double liftPower = 0;
 
-        if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
+        if (liftError > 10 || liftError < -10){// Hysteresis band to provide damping/braking zone to reduce oscillations
 
-            liftPower = ((liftError * 0.1)+ + .1); // PID with P and D factor plus feed forward
+            liftPower = ((liftError * 0.03) +  .1); // PID with P and D factor plus feed forward
 
-            if (liftPower > .9){
-                liftPower = .9;
+            if (liftPower > maxVertPower){
+                liftPower = maxVertPower;
             }
-            if (liftPower < -.9){
-                liftPower = -.9;
+            if (liftPower < -maxVertPower){
+                liftPower = -maxVertPower;
             }
         }
         else {
@@ -191,12 +209,70 @@ public class autored1 extends LinearOpMode {
             liftPower = 0;
 
         } // end of if-else
-        telemetry.addData("power1", liftPower);
-        telemetry.update();
 
 
-        motor1.setPower(liftPower);
+        vertMotor.setPower(liftPower);
 
 
     }
+
+    public void servoFuncLoop(double pos){
+        for(double i = pos/2; i <= pos; i += 0.01){
+            fourBarServo.setPosition(i);
+            fourBarServo2.setPosition(i);
+            sleep(10);
+
+        }
+    }
+    public void servoFunc(double pos){
+
+        fourBarServo.setPosition(pos * 0.7);
+        fourBarServo2.setPosition(pos * 0.7);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.8);
+        fourBarServo2.setPosition(pos * 0.8);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.85);
+        fourBarServo2.setPosition(pos * 0.85);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.875);
+        fourBarServo2.setPosition(pos * 0.875);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.9);
+        fourBarServo2.setPosition(pos * 0.9);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.91);
+        fourBarServo2.setPosition(pos * 0.91);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.92);
+        fourBarServo2.setPosition(pos * 0.92);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.93);
+        fourBarServo2.setPosition(pos * 0.93);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.94);
+        fourBarServo2.setPosition(pos * 0.94);
+        sleep(200);
+        fourBarServo.setPosition(pos * 0.95);
+        fourBarServo2.setPosition(pos * 0.95);
+        sleep(200);
+        fourBarServo.setPosition(pos);
+        fourBarServo2.setPosition(pos);
+    }
+    public void servoOuttakeFunc(double pos2){
+        intakeServo1.setPower(0.5);
+        intakeServo2.setPower(0.5);
+        fourBarServo.setPosition(pos2);
+        fourBarServo2.setPosition(pos2);
+        intakeServo1.setPower(-0.2);
+        intakeServo2.setPower(-0.5);
+        sleep(500);
+        fourBarServo.setPosition(0.5);
+        fourBarServo2.setPosition(0.5);
+        sleep(100);
+        intakeServo1.setPower(0);
+        intakeServo2.setPower(0);
+
+    }
+
 }

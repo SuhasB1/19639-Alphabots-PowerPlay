@@ -38,13 +38,6 @@ public class PIDControl extends LinearOpMode {
     public void runOpMode() {
         motor1 = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
         motor2 = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
-        Servo fourBarServo = hardwareMap.servo.get("fourBarServo");
-        Servo fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
-        fourBarServo.setDirection(Servo.Direction.REVERSE);
-        fourBarServo.setPosition(pos);
-        fourBarServo2.setPosition(pos);
-        fourBarServo.getController().pwmEnable();
-        fourBarServo2.getController().pwmEnable();
         motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

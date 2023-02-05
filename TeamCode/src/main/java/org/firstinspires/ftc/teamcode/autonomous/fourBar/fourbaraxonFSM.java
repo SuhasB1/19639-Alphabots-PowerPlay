@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.autonomous.fourBar;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -31,6 +31,7 @@ public class fourbaraxonFSM extends LinearOpMode {
         turretBack,
         fourBarBack,
         clawOpen,
+        //4barback
     }
 
     fourBarCycle fourBarCycleState = fourBarCycle.cycleStart;
@@ -61,28 +62,7 @@ public class fourbaraxonFSM extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            leftFourBar.setPosition(0.75);
-            rightFourBar.setPosition(0.75);
-            sleep(500);
-            turretServo.setPosition(0.825);
-            sleep(250);
-            clawServo.setPosition(0.4);
-            sleep(750);
-            leftFourBar.setPosition(0.87);
-            rightFourBar.setPosition(0.87);
-            sleep(50);
-            clawServo.setPosition(0.62);
-            sleep(500);
-            leftFourBar.setPosition(0.75);
-            rightFourBar.setPosition(0.75);
-            sleep(500);
-            turretServo.setPosition(0.15);
-            sleep(500);
-            leftFourBar.setPosition(0.35);
-            rightFourBar.setPosition(0.35);
-            sleep(500);
-            clawServo.setPosition(0.4);
-            sleep(500);
+            CycleP1();
 
 
             break;
@@ -100,9 +80,9 @@ public class fourbaraxonFSM extends LinearOpMode {
                 clawServo.setPosition(0.4);
                 sleep(300);
                 turretServo.setPosition(0.15);
+                sleep(150);
                 fourBarCycleState = fourBarCycle.turretFrontClawClose;
             case turretFrontClawClose:
-                sleep(150);
                 clawServo.setPosition(0.62);
                 sleep(500);
                 leftFourBar.setPosition(0.87);
@@ -116,9 +96,9 @@ public class fourbaraxonFSM extends LinearOpMode {
             case fourBarReset:
                 sleep(300);
                 turretServo.setPosition(0.15);
+                sleep(150);
                 fourBarCycleState = fourBarCycle.turretBack;
             case turretBack:
-                sleep(300);
                 leftFourBar.setPosition(0.35);
                 rightFourBar.setPosition(0.35);
                 fourBarCycleState = fourBarCycle.fourBarBack;

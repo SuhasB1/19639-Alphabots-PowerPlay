@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.autonomous.fourBar;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -6,26 +6,34 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Autonomous(name="axon", group="Training")
 public class axon extends LinearOpMode {
 
-    ServoImplEx axon;
+    ServoImplEx leftFourBar;
+    ServoImplEx rightFourBar;
 
     @Override
     public void runOpMode() {
 
-        axon = hardwareMap.get(ServoImplEx.class, "axonservo");
-        axon.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        leftFourBar = hardwareMap.get(ServoImplEx.class,"leftFourBar");
+        rightFourBar = hardwareMap.get(ServoImplEx.class,"rightFourBar");
+
+        leftFourBar.setDirection(Servo.Direction.REVERSE);
+
+        leftFourBar.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        rightFourBar.setPwmRange(new PwmControl.PwmRange(500, 2500));
 
 
         waitForStart();
         while(opModeIsActive())
         {
 
-            axon.setPosition(0.5);
+            leftFourBar.setPosition(0.5);
+            rightFourBar.setPosition(0.5);
 
         }
     }

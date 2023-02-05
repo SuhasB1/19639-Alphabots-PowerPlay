@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleop.linearslides;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -21,11 +21,11 @@ public class RRVertPID extends LinearOpMode {
 
 
 
-    public static double kD = 0;
-    public static double kP = 0.03;
-    public static double kG = 0.1;
+    public static double kD = 0.000175;
+    public static double kP = 0.017;
+    public static double kG = 0.05;
     final public double kI = 0;
-    public static double targetPos = 0;
+    public static double targetPos = 0; //2290 (high)
     public static double maxMotorTicks = 2000;
     double maxVertPower = 0.7;
     double derivative;

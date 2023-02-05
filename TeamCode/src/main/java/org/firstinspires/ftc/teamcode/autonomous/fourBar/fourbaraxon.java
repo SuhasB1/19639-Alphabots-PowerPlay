@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.autonomous.fourBar;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -51,7 +51,7 @@ public class fourbaraxon extends LinearOpMode {
             leftFourBar.setPosition(0.75);
             rightFourBar.setPosition(0.75);
             sleep(500);
-            turretServo.setPosition(0.825);
+            turretServo.setPosition(0.15);
             sleep(250);
             clawServo.setPosition(0.4);
             sleep(750);
@@ -63,7 +63,7 @@ public class fourbaraxon extends LinearOpMode {
             leftFourBar.setPosition(0.75);
             rightFourBar.setPosition(0.75);
             sleep(500);
-            turretServo.setPosition(0.15);
+            turretServo.setPosition(0.825);
             sleep(500);
             leftFourBar.setPosition(0.35);
             rightFourBar.setPosition(0.35);

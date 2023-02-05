@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleop.linearslides;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -7,26 +7,22 @@ import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 @Autonomous (name="horizontalpid")
-public class rrhorpid extends LinearOpMode {
-
+public class RRHorPID extends LinearOpMode {
     DcMotor rhArmMotor;
     DcMotor lhArmMotor;
 
 
-    public static double kP = 0;
-    public static double kD = 0;
+    public static double kP = 0.0025;
+    public static double kD = 0.000013;
     public static double kI = 0;
     public static double targetPos = 0;
-    com.acmerobotics.roadrunner.control.PIDCoefficients coeffs = new PIDCoefficients(kP, kI, kD);
+    PIDCoefficients coeffs = new PIDCoefficients(kP, kI, kD);
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
 

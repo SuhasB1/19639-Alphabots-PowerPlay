@@ -15,12 +15,15 @@ public class axon extends LinearOpMode {
 
     ServoImplEx leftFourBar;
     ServoImplEx rightFourBar;
+    ServoImplEx turretServo;
 
     @Override
     public void runOpMode() {
 
         leftFourBar = hardwareMap.get(ServoImplEx.class,"leftFourBar");
         rightFourBar = hardwareMap.get(ServoImplEx.class,"rightFourBar");
+        turretServo = hardwareMap.get(ServoImplEx.class,"turretServo");
+
 
         leftFourBar.setDirection(Servo.Direction.REVERSE);
 
@@ -31,9 +34,7 @@ public class axon extends LinearOpMode {
         waitForStart();
         while(opModeIsActive())
         {
-
-            leftFourBar.setPosition(0.5);
-            rightFourBar.setPosition(0.5);
+            turretServo.setPosition(0.25);
 
         }
     }

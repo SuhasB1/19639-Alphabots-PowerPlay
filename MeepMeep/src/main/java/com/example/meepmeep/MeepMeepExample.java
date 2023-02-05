@@ -33,7 +33,7 @@ public class MeepMeepExample {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(52.48291908330528, 52.48291908330528, Math.toRadians(180), Math.toRadians(180),0.5 )
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-35, -60, Math.toRadians(270)))
+                        drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(90)))
 //                                .lineToLinearHeading(new Pose2d(-37,-12, Math.toRadians(200)))
 //                                .strafeTo(new Vector2d(-30, 2))
 
@@ -42,11 +42,13 @@ public class MeepMeepExample {
 //                                .waitSeconds(3)
 //                                .strafeTo(new Vector2d(-12, -12))
 //                                .strafeTo(new Vector2d(-60, -12))
-                                .lineToConstantHeading(new Vector2d(35, -2))
+//                                .lineToConstantHeading(new Vector2d(35, -2))
 
 
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
+
+                                .lineToSplineHeading(new Pose2d(35, -2, Math.toRadians(-20)))
 
 
 
@@ -116,8 +118,8 @@ public class MeepMeepExample {
         meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(autored1)
-                //.addEntity(autored2)
+                //.addEntity(autored1)
+                .addEntity(autored2)
                 //.addEntity(autoblue1)
                 //.addEntity(autoblue2)
                 .start();

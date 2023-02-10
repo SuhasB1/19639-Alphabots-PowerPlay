@@ -31,8 +31,9 @@ public class FSMTestTrial_1 extends LinearOpMode {
     PIDCoefficients horCoeffs = new PIDCoefficients(0.00275, 0, 0.000024);
     public static double vertTargetPos = 0;
     public static double horTargetPos = 0;
-    public static double horhorhorhorTargetPos = -40;
+    public static double vertDeadband = 15;
     public final double kG = 0.1;
+    public static double wait = 1000;
 
 
     /*
@@ -67,7 +68,8 @@ public class FSMTestTrial_1 extends LinearOpMode {
     public enum Outtake {
         vertExtend,
         readyPosFunc,
-        vertRetract
+        vertRetract,
+        vertRetractP2
     }
 
     public enum fourBarCycle {
@@ -89,7 +91,8 @@ public class FSMTestTrial_1 extends LinearOpMode {
 
     ElapsedTime timer1= new ElapsedTime();
     ElapsedTime testTimer= new ElapsedTime();
-    ElapsedTime horTimer= new ElapsedTime();
+    ElapsedTime vertTimer= new ElapsedTime();
+    int test = 0;
 
 
     @Override
@@ -130,7 +133,10 @@ public class FSMTestTrial_1 extends LinearOpMode {
 
         timer1.reset();
         timer1.startTime();
+        vertTimer.reset();
+        vertTimer.startTime();
         count = 0;
+        test = 0;
 
 
 
@@ -150,7 +156,6 @@ public class FSMTestTrial_1 extends LinearOpMode {
             horController.setTargetPosition(horTargetPos);
             vertSlidesPID(vertController);
             horSlidesPID(horController);
-
             outtakeCycle();
             telemetry.update();
             if(count == 1){
@@ -172,7 +177,7 @@ public class FSMTestTrial_1 extends LinearOpMode {
             case fourBarSet:
                 clawServo.setPosition(0.62);
                 sleep(400);
-                turretServo.setPosition(0.15);
+                turretServo.setPosition(0.9);
                 fourBarCycleState = fourBarCycle.turretFrontClawClose;
                 break;
             case turretFrontClawClose:
@@ -193,7 +198,7 @@ public class FSMTestTrial_1 extends LinearOpMode {
                 break;
             case fourBarReset:
                 sleep(300);
-                turretServo.setPosition(0.825);
+                turretServo.setPosition(0.25);
                 fourBarCycleState = fourBarCycle.turretBack;
                 break;
             case turretBack:
@@ -238,9 +243,8 @@ public class FSMTestTrial_1 extends LinearOpMode {
                 break;
             case turretFront:
                 if(timer1.milliseconds() >= 500) {
-                    turretServo.setPosition(0.15);
+                    turretServo.setPosition(0.9);
                     timer1.reset();
-                    sleep(400);
                     telemetry.addData("2", testTimer.milliseconds());
                     readyPosState = readyPos.fourBarClawOpen;
                 }
@@ -251,8 +255,7 @@ public class FSMTestTrial_1 extends LinearOpMode {
                     leftFourBar.setPosition(0.5);
                     rightFourBar.setPosition(0.5);
                     clawServo.setPosition(0.4);
-                    sleep(200);
-                    telemetry.addData("3", testTimer.milliseconds());
+
                 }
                 break;
 
@@ -285,18 +288,17 @@ public class FSMTestTrial_1 extends LinearOpMode {
                 }
                 break;
             case horRetract:
-                horTargetPos = horhorhorhorTargetPos;
+                horTargetPos = 0;
                 pickUpState = pickUp.fourBarTurretBack;
                 telemetry.addData("I Got here", lhArmMotor.getCurrentPosition());
                 break;
             case fourBarTurretBack:
                 leftFourBar.setPosition(0.75);
                 rightFourBar.setPosition(0.75);
-                turretServo.setPosition(0.84);
+                turretServo.setPosition(0.25);
                 pickUpState = pickUp.fourBarOuttake;
                 break;
             case fourBarOuttake:
-                horTimer.reset();
                 telemetry.addData("I Got here", lhArmMotor.getCurrentPosition());
                 if (Math.abs(lhArmMotor.getCurrentPosition() - 0) < 20) {
                     telemetry.addData("I Got here", lhArmMotor.getCurrentPosition());
@@ -307,14 +309,14 @@ public class FSMTestTrial_1 extends LinearOpMode {
                 }
                 break;
             case clawOpen:
-                //sleep(600);
-                //clawServo.setPosition(0.4);
+                sleep(600);
+                clawServo.setPosition(0.4);
                 pickUpState = pickUp.fourBarReset;
                 break;
             case fourBarReset:
-                //sleep(200);
-                //leftFourBar.setPosition(0.5);
-                //rightFourBar.setPosition(0.5);
+                sleep(200);
+                leftFourBar.setPosition(0.5);
+                rightFourBar.setPosition(0.5);
                 break;
 
 
@@ -325,14 +327,25 @@ public class FSMTestTrial_1 extends LinearOpMode {
             case vertExtend:
                 vertTargetPos = 2290;
                 outtakeState = Outtake.readyPosFunc;
+                break;
             case readyPosFunc:
                 count =1;
                 outtakeState = Outtake.vertRetract;
+                break;
             case vertRetract:
-                if (Math.abs(vertMotor.getCurrentPosition() - 2290) < 40) {
-                    sleep(1000);
+                if (Math.abs(vertMotor.getCurrentPosition() - 2290) < vertDeadband) {
+                    telemetry.addData("ticks", vertMotor.getCurrentPosition());
+                    vertTimer.reset();
+                    telemetry.addData("time", vertTimer.milliseconds());
+                    outtakeState = Outtake.vertRetractP2;
+                }
+                break;
+            case vertRetractP2:
+                if (vertTimer.milliseconds() >= wait) {
                     vertTargetPos = 0;
                 }
+                break;
+
 
         }
     }

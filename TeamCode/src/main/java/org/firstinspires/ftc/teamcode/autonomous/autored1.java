@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -14,8 +15,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.android.dx.cf.direct.CodeObserver;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.Vector;
 
 /*
  * Op mode for preliminary tuning of the follower PID coefficients (located in the drive base
@@ -38,19 +45,27 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class autored1 extends LinearOpMode {
 
     public static double DISTANCE = 50;
-    DcMotor vertMotor;
-    DcMotor rhArmMotor;
-    DcMotor lhArmMotor;
-    Servo fourBarServo;
-    Servo fourBarServo2;
-    CRServo intakeServo1;
-    CRServo intakeServo2;
-
+    private SleeveDetection sleeveDetection;
+    private OpenCvCamera camera;
+    double parkingPos;
+    //    DcMotor vertMotor;
+//    DcMotor rhArmMotor;
+//    DcMotor lhArmMotor;
+//    Servo fourBarServo;
+//    Servo fourBarServo2;
+//    CRServo intakeServo1;
+//    CRServo intakeServo2;
+    public static double x = 30;
+    public static double y = 0.75;
     public static double kD = 0;
+    public static double kP = 0;
     public static double pos = 0.77;
+    public static double angle = -13;
     double maxVertPower = 0.7;
     public static double targetPos = 0;
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
+    SleeveDetection.ParkingPosition snapshot = SleeveDetection.ParkingPosition.CENTER; //default
+
 
 
 
@@ -59,7 +74,7 @@ public class autored1 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(35, -60, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(35, -60, Math.toRadians(270));
 
 
 
@@ -72,36 +87,134 @@ public class autored1 extends LinearOpMode {
                 .build();
 
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end().plus(new Pose2d(0, 0, Math.toRadians(-102))))
-                .back(4)
+        Trajectory traj2 = drive.trajectoryBuilder(traj1.end().plus(new Pose2d(0, 0, Math.toRadians(-105))))
+                .strafeLeft(6.75)
+
                 .build();
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .strafeLeft(6)
+                .back(7)
+
+                .build();
+
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end().plus(new Pose2d(0, 0, Math.toRadians(15))))
+                .forward(4)
+                .build();
+
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
+                .strafeRight(24)
+                .build();
+
+        Trajectory splinePath = drive.trajectoryBuilder(startPose)
+                .lineToSplineHeading(new Pose2d(35, 4, Math.toRadians(-16)))
+                .build();
+
+        Trajectory back = drive.trajectoryBuilder(splinePath.end())
+                .back(4)
                 .build();
 
 
 
+        Trajectory parshPath = drive.trajectoryBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(35, -20))
+                .build();
 
-        vertMotor = hardwareMap.get(DcMotorEx.class,"vertMotor");
-        rhArmMotor = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
-        lhArmMotor = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
-        vertMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        vertMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        vertMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        vertMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        lhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        fourBarServo = hardwareMap.servo.get("fourBarServo");
-        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
-        fourBarServo.setDirection(Servo.Direction.REVERSE);
-        vertSlidesPID(0);
-        horSlidesPID(0);
+        Trajectory parshPath2 = drive.trajectoryBuilder(parshPath.end())
+                .lineToSplineHeading(new Pose2d(x, y, Math.toRadians(angle))) //-14.0362435
+                .build();
+
+        Trajectory forward = drive.trajectoryBuilder(parshPath2.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward = drive.trajectoryBuilder(forward.end())
+                .back(3)
+                .build();
+
+        Trajectory forward2 = drive.trajectoryBuilder(backward.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward2 = drive.trajectoryBuilder(forward2.end())
+                .back(3)
+                .build();
+
+        Trajectory forward3 = drive.trajectoryBuilder(backward2.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward3 = drive.trajectoryBuilder(forward3.end())
+                .back(3)
+                .build();
+
+        Trajectory forward4 = drive.trajectoryBuilder(backward3.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward4 = drive.trajectoryBuilder(forward4.end())
+                .back(3)
+                .build();
+
+        Trajectory forward5 = drive.trajectoryBuilder(backward4.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward5 = drive.trajectoryBuilder(forward5.end())
+                .back(3)
+                .build();
+
+        Trajectory lineForward = drive.trajectoryBuilder(parshPath2.end())
+                .lineToConstantHeading(new Vector2d(34.236, -3.25))
+                .build();
+
+        Trajectory lineBackward = drive.trajectoryBuilder(lineForward.end())
+                .lineToConstantHeading(new Vector2d(30  , 0.75))
+                .build();
+
+
+
+//
+//        vertMotor = hardwareMap.get(DcMotorEx.class,"vertMotor");
+//        rhArmMotor = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
+//        lhArmMotor = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
+//        vertMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+//        vertMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        vertMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        vertMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        lhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        lhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        lhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+//        fourBarServo = hardwareMap.servo.get("fourBarServo");
+//        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
+//        fourBarServo.setDirection(Servo.Direction.REVERSE);
+//        vertSlidesPID(0);
+//        horSlidesPID(0);
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        sleeveDetection = new SleeveDetection();
+        FtcDashboard.getInstance().startCameraStream(camera, 0);
+        camera.setPipeline(sleeveDetection);
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                camera.startStreaming(800,448, OpenCvCameraRotation.SIDEWAYS_RIGHT); //upright before
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+
+            }
+        });
+
+        telemetry.setMsTransmissionInterval(50);
 
 
 
@@ -113,166 +226,143 @@ public class autored1 extends LinearOpMode {
 //        fourBarServo2.setPosition(pos * 0.75);
 //        fourBarServo.setPosition(pos);
 //        fourBarServo2.setPosition(pos);
+        /*
+         * The INIT-loop:
+         * This REPLACES waitForStart!
+         */
+
+        while (!isStarted() && !isStopRequested())
+        {
+            telemetry.addData("Realtime Analysis", sleeveDetection.getPosition());
+            telemetry.update();
+            sleep(150);
+            /*
+            Trajectory building in init
+             */
+
+
+
+        }
+        snapshot = sleeveDetection.getPosition();
+
+        telemetry.addData("Snapshot POST-START Analysis", snapshot);
+        telemetry.update();
+
+
 
 
 
         waitForStart();
+        while(opModeIsActive()){
+            switch(snapshot){
+                case LEFT:
+//                    drive.followTrajectory(traj1);
+//                    sleep(500);
+//                    drive.turn(Math.toRadians(-105));
+//                    drive.followTrajectory(traj2);
+//                    drive.followTrajectory(traj3);
+//                    drive.turn(Math.toRadians(15));
+//                    drive.followTrajectory(traj4);
+//                    drive.followTrajectory(traj5);
+//                    drive.followTrajectory(splinePath);
+//                    drive.followTrajectory(back);
+                    drive.followTrajectory(parshPath);
+                    drive.followTrajectory(parshPath2);
+                    sleep(5000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+//                    drive.followTrajectory(forward);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward5);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward5);
+                    break;
+                case RIGHT:
+                    drive.followTrajectory(parshPath);
+                    drive.followTrajectory(parshPath2);
+                    sleep(5000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+//                    drive.followTrajectory(forward);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward5);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward5);
 
-        while (opModeIsActive() && !isStopRequested()) {
-            drive.followTrajectory(traj1);
-            sleep(500);
-            drive.turn(Math.toRadians(-102));
-            drive.followTrajectory(traj2);
-            drive.followTrajectory(traj3);
-            vertSlidesPID(2000);
-            sleep(2000);
-            vertSlidesPID(0);
-            sleep(2000);
 
 
 
+                    break;
+                case CENTER:
 
+                    break;
 
-
-
+            }
             break;
 
-
-        }
-    }
-    public void horSlidesPID(double targetPosition){
-        double currentLiftPosition = rhArmMotor.getCurrentPosition();  // Get the position of the lift in ticks
-
-        double liftError = (targetPosition-5) - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
-        double liftPower = 0;
-        double liftError2 = (targetPosition-5) - lhArmMotor.getCurrentPosition();
-        double liftPower2 = 0;
-
-        if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
-
-            liftPower = ((liftError * 0.005)); // PID with P and D factor plus feed forward
-
-            if (liftPower > .65){
-                liftPower = .65;
-            }
-            if (liftPower < -.65){
-                liftPower = -.65;
-            }
-        }
-        else {
-
-            liftPower = 0;
-
-        } // end of if-else
-
-        if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
-
-            liftPower2 = ((liftError2 * 0.005));   		// PID with P only factor plus feed forward
-
-            if (liftPower2 > .65){
-                liftPower2 = .65;
-            }
-            if (liftPower2 < -.65){
-                liftPower2 = -.65;
-            }
-        }
-        else {
-            liftPower2 = 0;
-
         }
 
-        rhArmMotor.setPower(liftPower);
-        lhArmMotor.setPower(liftPower);
-
-
     }
-
-    public void vertSlidesPID(double targetPosition){
-        double currentLiftPosition = vertMotor.getCurrentPosition();  // Get the position of the lift in ticks
-
-        double liftError = targetPosition - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
-        double liftPower = 0;
-
-        if (liftError > 10 || liftError < -10){// Hysteresis band to provide damping/braking zone to reduce oscillations
-
-            liftPower = ((liftError * 0.03) +  .1); // PID with P and D factor plus feed forward
-
-            if (liftPower > maxVertPower){
-                liftPower = maxVertPower;
-            }
-            if (liftPower < -maxVertPower){
-                liftPower = -maxVertPower;
-            }
-        }
-        else {
-
-            liftPower = 0;
-
-        } // end of if-else
-
-
-        vertMotor.setPower(liftPower);
-
-
-    }
-
-    public void servoFuncLoop(double pos){
-        for(double i = pos/2; i <= pos; i += 0.01){
-            fourBarServo.setPosition(i);
-            fourBarServo2.setPosition(i);
-            sleep(10);
-
-        }
-    }
-    public void servoFunc(double pos){
-
-        fourBarServo.setPosition(pos * 0.7);
-        fourBarServo2.setPosition(pos * 0.7);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.8);
-        fourBarServo2.setPosition(pos * 0.8);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.85);
-        fourBarServo2.setPosition(pos * 0.85);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.875);
-        fourBarServo2.setPosition(pos * 0.875);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.9);
-        fourBarServo2.setPosition(pos * 0.9);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.91);
-        fourBarServo2.setPosition(pos * 0.91);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.92);
-        fourBarServo2.setPosition(pos * 0.92);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.93);
-        fourBarServo2.setPosition(pos * 0.93);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.94);
-        fourBarServo2.setPosition(pos * 0.94);
-        sleep(200);
-        fourBarServo.setPosition(pos * 0.95);
-        fourBarServo2.setPosition(pos * 0.95);
-        sleep(200);
-        fourBarServo.setPosition(pos);
-        fourBarServo2.setPosition(pos);
-    }
-    public void servoOuttakeFunc(double pos2){
-        intakeServo1.setPower(0.5);
-        intakeServo2.setPower(0.5);
-        fourBarServo.setPosition(pos2);
-        fourBarServo2.setPosition(pos2);
-        intakeServo1.setPower(-0.2);
-        intakeServo2.setPower(-0.5);
-        sleep(500);
-        fourBarServo.setPosition(0.5);
-        fourBarServo2.setPosition(0.5);
-        sleep(100);
-        intakeServo1.setPower(0);
-        intakeServo2.setPower(0);
-
-    }
-
 }

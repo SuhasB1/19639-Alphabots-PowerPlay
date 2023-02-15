@@ -48,7 +48,10 @@ public class MeepMeepExample {
 
                                 //or  .lineToLinearHeading(new Pose2d(36,0, Math.toRadians(-13)))
 
-                                .lineToSplineHeading(new Pose2d(35, -2, Math.toRadians(-20)))
+                                .lineToConstantHeading(new Vector2d(35, -20))
+                                .lineToSplineHeading(new Pose2d(30, 0.75, Math.toRadians(-13))) //-14.0362435
+                                .waitSeconds(30)
+
 
 
 

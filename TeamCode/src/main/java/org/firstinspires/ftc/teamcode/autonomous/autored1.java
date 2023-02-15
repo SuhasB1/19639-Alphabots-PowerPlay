@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -14,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.android.dx.cf.direct.CodeObserver;
@@ -21,6 +23,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.Vector;
 
 /*
  * Op mode for preliminary tuning of the follower PID coefficients (located in the drive base
@@ -53,14 +57,30 @@ public class autored1 extends LinearOpMode {
 //    Servo fourBarServo2;
 //    CRServo intakeServo1;
 //    CRServo intakeServo2;
+    DcMotorEx motor1;
 
-    public static double kD = 0;
-    public static double kP = 0;
+
+    public static double x = 30;
+    public static double y = 0.75;
+
     public static double pos = 0.77;
+    public static double angle = -13;
     double maxVertPower = 0.7;
-    public static double targetPos = 0;
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
     SleeveDetection.ParkingPosition snapshot = SleeveDetection.ParkingPosition.CENTER; //default
+    public static double kD = 0.000175;
+    public static double kP = 0.017;
+    public static double kG = 0.05;
+    final public double kI = 0;
+    public static double targetPos = 2000; //2290 (high)
+    public static double maxMotorTicks = 2000;
+    double derivative;
+    double lastError;
+    double integralSum = 0;
+    public ElapsedTime runtime = new ElapsedTime();
+    PIDCoefficients coeffs = new PIDCoefficients(kP, kI, kD);
+
+
 
 
 
@@ -68,9 +88,16 @@ public class autored1 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        motor1 = hardwareMap.get(DcMotorEx.class,"vertMotor");
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        PIDFController controller = new PIDFController(coeffs);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(35, -60, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(35, -60, Math.toRadians(270));
 
 
 
@@ -108,6 +135,65 @@ public class autored1 extends LinearOpMode {
         Trajectory back = drive.trajectoryBuilder(splinePath.end())
                 .back(4)
                 .build();
+
+
+
+        Trajectory parshPath = drive.trajectoryBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(35, -20))
+                .build();
+
+        Trajectory parshPath2 = drive.trajectoryBuilder(parshPath.end())
+                .lineToSplineHeading(new Pose2d(x, y, Math.toRadians(angle))) //-14.0362435
+                .build();
+
+        Trajectory forward = drive.trajectoryBuilder(parshPath2.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward = drive.trajectoryBuilder(forward.end())
+                .back(3)
+                .build();
+
+        Trajectory forward2 = drive.trajectoryBuilder(backward.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward2 = drive.trajectoryBuilder(forward2.end())
+                .back(3)
+                .build();
+
+        Trajectory forward3 = drive.trajectoryBuilder(backward2.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward3 = drive.trajectoryBuilder(forward3.end())
+                .back(3)
+                .build();
+
+        Trajectory forward4 = drive.trajectoryBuilder(backward3.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward4 = drive.trajectoryBuilder(forward4.end())
+                .back(3)
+                .build();
+
+        Trajectory forward5 = drive.trajectoryBuilder(backward4.end())
+                .forward(3)
+                .build();
+
+        Trajectory backward5 = drive.trajectoryBuilder(forward5.end())
+                .back(3)
+                .build();
+
+        Trajectory lineForward = drive.trajectoryBuilder(parshPath2.end())
+                .lineToConstantHeading(new Vector2d(34.236, -3.25))
+                .build();
+
+        Trajectory lineBackward = drive.trajectoryBuilder(lineForward.end())
+                .lineToConstantHeading(new Vector2d(30  , 0.75))
+                .build();
+
 
 
 //
@@ -190,6 +276,12 @@ public class autored1 extends LinearOpMode {
 
 
         waitForStart();
+        TelemetryPacket packet = new TelemetryPacket();
+        dashboard.setTelemetryTransmissionInterval(25);
+        packet.put("position", motor1.getCurrentPosition());
+        packet.put("targetPosition", targetPos);
+        dashboard.sendTelemetryPacket(packet);
+        controller.setTargetPosition(targetPos);
         while(opModeIsActive()){
             switch(snapshot){
                 case LEFT:
@@ -201,24 +293,102 @@ public class autored1 extends LinearOpMode {
 //                    drive.turn(Math.toRadians(15));
 //                    drive.followTrajectory(traj4);
 //                    drive.followTrajectory(traj5);
-                    drive.followTrajectory(splinePath);
-                    drive.followTrajectory(back);
+//                    drive.followTrajectory(splinePath);
+//                    drive.followTrajectory(back);
+                    drive.followTrajectory(parshPath);
+                    drive.followTrajectory(parshPath2);
+//                    sleep(5000);
+//                    drive.followTrajectory(lineForward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineBackward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineForward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineBackward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineForward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineBackward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineForward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineBackward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineForward);
+//                    sleep(2000);
+//                    drive.followTrajectory(lineBackward);
+//                    drive.followTrajectory(forward);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward5);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward5);
+                    vertSlides(targetPos);
+                    sleep(2000);
+
                     break;
                 case RIGHT:
+                    drive.followTrajectory(parshPath);
+                    drive.followTrajectory(parshPath2);
+                    sleep(5000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+                    sleep(2000);
+                    drive.followTrajectory(lineForward);
+                    sleep(2000);
+                    drive.followTrajectory(lineBackward);
+//                    drive.followTrajectory(forward);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward2);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward3);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward4);
+//                    sleep(5000);
+//                    drive.followTrajectory(forward5);
+//                    sleep(5000);
+//                    drive.followTrajectory(backward5);
+
+
 
 
                     break;
                 case CENTER:
-//                    drive.followTrajectory(traj1);
-//                    sleep(500);
-//                    drive.turn(Math.toRadians(-105));
-//                    drive.followTrajectory(traj2);
-//                    drive.followTrajectory(traj3);
-//                    drive.turn(Math.toRadians(15));
-//                    drive.followTrajectory(traj4);
-//                    drive.followTrajectory(traj5);
-                    drive.followTrajectory(splinePath);
-                    drive.followTrajectory(back);
+
                     break;
 
             }
@@ -226,5 +396,47 @@ public class autored1 extends LinearOpMode {
 
         }
 
+
+        }
+    public void vertSlidesPID(PIDFController controller){
+        double correction = controller.update(motor1.getCurrentPosition());
+        motor1.setPower(correction + kG);
+
     }
-       }
+
+    public void vertSlides(double targetPos){
+        runtime.startTime();
+        double currentLiftPosition = motor1.getCurrentPosition();  // Get the position of the lift in ticks
+
+        double liftError = targetPos - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
+        double liftPower = 0;
+        derivative = (liftError - lastError) / runtime.seconds();
+        lastError = liftError;
+
+        runtime.reset();
+
+
+
+        if (liftError > 10 || liftError < -10){// Hysteresis band to provide damping/braking zone to reduce oscillations
+
+            liftPower = ((liftError * kP)  + (derivative * kD) +  kG); // PID with P and D factor plus feed forward
+
+            if (liftPower > maxVertPower){
+                liftPower = maxVertPower;
+            }
+            if (liftPower < -maxVertPower){
+                liftPower = -maxVertPower;
+            }
+        }
+        else {
+
+            liftPower = 0;
+
+        } // end of if-else
+
+
+        motor1.setPower(liftPower);
+
+
+    }
+}

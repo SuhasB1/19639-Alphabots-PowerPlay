@@ -21,8 +21,8 @@ public class RRVertPID extends LinearOpMode {
 
 
 
-    public static double kD = 0.000175;
-    public static double kP = 0.017;
+    public static double kD = 0.000375;
+    public static double kP = 0.016;
     public static double kG = 0.05;
     final public double kI = 0;
     public static double targetPos = 0; //2290 (high)

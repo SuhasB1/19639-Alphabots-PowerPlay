@@ -22,6 +22,7 @@ public class RRHorPID extends LinearOpMode {
     public static double kD = 0.000013;
     public static double kI = 0;
     public static double targetPos = 0;
+    public static double horSpeed = 1;
     PIDCoefficients coeffs = new PIDCoefficients(kP, kI, kD);
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -75,6 +76,12 @@ public class RRHorPID extends LinearOpMode {
     public void horizontalPID(PIDFController controller)
     {
         double correction = controller.update((lhArmMotor.getCurrentPosition() + rhArmMotor.getCurrentPosition())/2);
+        if (correction > horSpeed){
+            correction = horSpeed;
+        }
+        if (correction < -horSpeed){
+            correction = -horSpeed;
+        }
         lhArmMotor.setPower(correction);
         rhArmMotor.setPower(correction);
     }

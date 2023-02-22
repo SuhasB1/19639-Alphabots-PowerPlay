@@ -41,13 +41,8 @@ public class axon extends LinearOpMode {
         waitForStart();
         while(opModeIsActive())
         {
-          leftFourBar.setPosition(0.7);
-          rightFourBar.setPosition(0.7);
-          sleep(4000);
-
-
-
-          break;
+            leftFourBar.setPosition(pos);
+            rightFourBar.setPosition(pos);
         }
     }
 }

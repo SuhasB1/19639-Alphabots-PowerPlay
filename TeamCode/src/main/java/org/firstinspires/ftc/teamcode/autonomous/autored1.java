@@ -297,6 +297,7 @@ public class autored1 extends LinearOpMode {
 //                    drive.followTrajectory(back);
                     drive.followTrajectory(parshPath);
                     drive.followTrajectory(parshPath2);
+                    drive.followTrajectory(forward);
 //                    sleep(5000);
 //                    drive.followTrajectory(lineForward);
 //                    sleep(2000);
@@ -336,7 +337,7 @@ public class autored1 extends LinearOpMode {
 //                    drive.followTrajectory(forward5);
 //                    sleep(5000);
 //                    drive.followTrajectory(backward5);
-                    vertSlides(targetPos);
+
                     sleep(2000);
 
                     break;

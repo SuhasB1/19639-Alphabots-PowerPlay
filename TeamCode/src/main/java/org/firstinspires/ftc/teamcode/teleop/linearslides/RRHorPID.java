@@ -18,11 +18,11 @@ public class RRHorPID extends LinearOpMode {
     DcMotor lhArmMotor;
 
 
-    public static double kP = 0.0025;
-    public static double kD = 0.000013;
+    public static double kP = 0.0023;
+    public static double kD = 0.000015;
     public static double kI = 0;
     public static double targetPos = 0;
-    public static double horSpeed = 1;
+    public static double horSpeed = 0.7;
     PIDCoefficients coeffs = new PIDCoefficients(kP, kI, kD);
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 

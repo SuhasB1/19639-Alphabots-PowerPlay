@@ -32,21 +32,21 @@ public class TeleOpMain extends LinearOpMode {
     int count2 = 0;
     int count3 = 0;
     int count4 = 0;
-    PIDCoefficients vertCoeffs = new PIDCoefficients(0.016, 0, 0.000375);
-    PIDCoefficients horCoeffs = new PIDCoefficients(0.0023, 0, 0.000015);
+    PIDCoefficients vertCoeffs = new PIDCoefficients(-0.03, 0, -0.00025);
+    PIDCoefficients horCoeffs = new PIDCoefficients(0.0041, 0, 0.00001);
     public static double vertTargetPos = 0;
     public static double horTargetPos = 0;
     double vertvertTargetPos = 0;
     double horhorTargetPos = 0;
-    public static double turretPos = 0.1;
+    public static double turretPos = 0.11;
     public static double vertDeadband = 20;
-    public static double backPos = 0.38;
+    public static double backPos = 0.385;
     public static double downPos = 0.88;
     public static double coneInterval = 0;
     public final double kG = 0.05;
     public static double wait = 1000;
     public double coneCount = 0;
-    double horSpeed = 1;
+    double horSpeed = 0.75;
     public double multiplier = 1;
 
     public enum readyPos {
@@ -181,43 +181,49 @@ public class TeleOpMain extends LinearOpMode {
                 horExtension();
             }
             if(gamepad2.triangle){
-                vertvertTargetPos = 2290;
+                vertvertTargetPos = 860;
+                readyPosState = readyPos.fourBarClawClose;
+                outtakeState = Outtake.vertExtend;
                 count2 = 1;
                 //vert high
             }
             if(gamepad2.square){
-                vertvertTargetPos = 1750;
+                vertvertTargetPos = 560;
+                readyPosState = readyPos.fourBarClawClose;
+                outtakeState = Outtake.vertExtend;
                 count2 = 1;
                 //vert mid
             }
             if(gamepad2.circle){
-                vertvertTargetPos = 1000;
-                count2 = 1;
-                //vert low
+                leftFourBar.setPosition(0.5);
+                rightFourBar.setPosition(0.5);
             }
             if(gamepad2.cross){
-                vertvertTargetPos = -15;
-                count2 = 1;
+                leftFourBar.setPosition(downPos);
+                rightFourBar.setPosition(downPos);
                 //vert 0
             }
             if(gamepad2.dpad_up){
-                horhorTargetPos = 500;
+                horhorTargetPos = 640;
+                horExtendState = horExtend.horExtended;
                 count4 = 1;
                 //hor far
             }
 
             if(gamepad2.dpad_right){
-                horhorTargetPos = 350;
-                count4 = 1;
+                readyPosState = readyPos.fourBarClawClose;
+                count = 1;
                 //hor small
             }
             if(gamepad2.dpad_left){
-                horhorTargetPos = 80;
+                horhorTargetPos = 550;
+                horExtendState = horExtend.horExtended;
                 count4 = 1;
                //hor mid
 
             }
             if(gamepad2.dpad_down){
+                pickUpState = pickUp.horExtend;
                 count3 = 1;
                 //hor back
             }
@@ -295,7 +301,7 @@ public class TeleOpMain extends LinearOpMode {
                 break;
             case turretFront:
                 if(timer1.milliseconds() >= 500) {
-                    turretServo.setPosition(0.8);
+                    turretServo.setPosition(0.85);
                     timer1.reset();
                     telemetry.addData("2", testTimer.milliseconds());
                     readyPosState = readyPos.fourBarClawOpen;
@@ -330,7 +336,7 @@ public class TeleOpMain extends LinearOpMode {
             horExtendState = horExtend.fourBarDown;
             break;
             case fourBarDown:
-                if (Math.abs(lhArmMotor.getCurrentPosition() - horTargetPos) < 20) {
+                if (Math.abs(lhArmMotor.getCurrentPosition() - horhorTargetPos) < 20) {
                     count4 = 0;
                 }
             break;
@@ -385,7 +391,7 @@ public class TeleOpMain extends LinearOpMode {
     public void outtakeCycle(){
         switch(outtakeState){
             case vertExtend:
-                vertTargetPos = vertvertTargetPos; //2290 for high
+                vertTargetPos = vertvertTargetPos; //860 for high
                 outtakeState = Outtake.readyPosFunc;
                 break;
             case readyPosFunc:
@@ -393,7 +399,7 @@ public class TeleOpMain extends LinearOpMode {
                 outtakeState = Outtake.vertRetract;
                 break;
             case vertRetract:
-                if (Math.abs(vertMotor.getCurrentPosition() - vertTargetPos) < 20) {
+                if (Math.abs(vertMotor.getCurrentPosition() - vertvertTargetPos) < 20) {
                     telemetry.addData("ticks", vertMotor.getCurrentPosition());
                     vertTimer.reset();
                     telemetry.addData("time", vertTimer.milliseconds());
@@ -402,7 +408,7 @@ public class TeleOpMain extends LinearOpMode {
                 break;
             case vertRetractP2:
                 if (vertTimer.milliseconds() >= wait) {
-                    vertTargetPos = -30;
+                    vertTargetPos = -10;
                     count2 = 0;
                 }
                 break;

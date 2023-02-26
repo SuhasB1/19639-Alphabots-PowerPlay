@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -15,6 +16,7 @@ public class armtest extends LinearOpMode {
 
     DcMotor lhArmMotor;
     DcMotor rhArmMotor;
+    DcMotor motor1;
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
 
@@ -29,6 +31,11 @@ public class armtest extends LinearOpMode {
         rhArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rhArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor1 = hardwareMap.get(DcMotorEx.class,"vertMotor");
+        motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         TelemetryPacket packet = new TelemetryPacket();
         dashboard.setTelemetryTransmissionInterval(25);
 
@@ -39,6 +46,7 @@ public class armtest extends LinearOpMode {
             telemetry.addData("Ticks:", rhArmMotor.getCurrentPosition());
             packet.put("left position", lhArmMotor.getCurrentPosition());
             packet.put("right position", rhArmMotor.getCurrentPosition());
+            packet.put("vert position", motor1.getCurrentPosition());
             dashboard.sendTelemetryPacket(packet);
 
             telemetry.update();

@@ -19,7 +19,7 @@ public class axon extends LinearOpMode {
     ServoImplEx rightFourBar;
     ServoImplEx turretServo;
 
-    public static double pos = 0.15;
+    public static double pos = 0.1;
 
 
     @Override
@@ -41,7 +41,7 @@ public class axon extends LinearOpMode {
         waitForStart();
         while(opModeIsActive())
         {
-            turretServo.setPosition(pos);
+           turretServo.setPosition(pos);
         }
     }
 }

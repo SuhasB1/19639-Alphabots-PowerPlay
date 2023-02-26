@@ -21,11 +21,11 @@ public class RRVertPID extends LinearOpMode {
 
 
 
-    public static double kD = 0.000375;
-    public static double kP = 0.016;
-    public static double kG = 0.05;
+    public static double kD = -0.00025;
+    public static double kP = -0.03;
+    public static double kG = -0.1;
     final public double kI = 0;
-    public static double targetPos = 0; //2290 (high)
+    public static double targetPos = 0; //860 (high)
     public static double maxMotorTicks = 2000;
     double maxVertPower = 0.7;
     double derivative;
@@ -40,10 +40,10 @@ public class RRVertPID extends LinearOpMode {
     @Override
     public void runOpMode() {
         motor1 = hardwareMap.get(DcMotorEx.class,"vertMotor");
-        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         PIDFController controller = new PIDFController(coeffs);
 
 
@@ -80,6 +80,7 @@ public class RRVertPID extends LinearOpMode {
             dashboard.sendTelemetryPacket(packet);
 
             vertSlidesPID(controller);
+            //860 high ticks, 560 mid, 900 physical max
 
 
 

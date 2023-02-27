@@ -54,8 +54,8 @@ public class Auto_Func_Cones extends LinearOpMode {
     public static double y = 0;
     private SleeveDetection sleeveDetection;
     private OpenCvCamera camera;
-    double parkingPos;
     int snapshotPos = 1;
+    int timerCount = 0;
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
     SleeveDetection.ParkingPosition snapshot = SleeveDetection.ParkingPosition.CENTER; //default
 
@@ -123,7 +123,8 @@ public class Auto_Func_Cones extends LinearOpMode {
         vert5,
         mainEnd,
         mainDecision,
-        mainFinal
+        mainFinal,
+        ending
     }
 
     readyPos readyPosState = readyPos.fourBarClawClose;
@@ -277,6 +278,7 @@ public class Auto_Func_Cones extends LinearOpMode {
         count = 0;
         count2 = 0;
         count3 = 0;
+        timerCount = 0;
         CHANGEABLEhorTargetPos = 640;
         fourBarIntakePos = 0.75;
         leftFourBar.setPosition(0.5);
@@ -308,7 +310,10 @@ public class Auto_Func_Cones extends LinearOpMode {
 
 
             waitForStart();
-            while (opModeIsActive()) {
+            while (opModeIsActive() && timerCount == 0) {
+                telemetry.addData("VERT Ticks:", vertMotor.getCurrentPosition());
+                telemetry.addData("HOR Ticks:", lhArmMotor.getCurrentPosition());
+                telemetry.update();
                 if (gamepad1.left_bumper) {
                     drive.followTrajectory(mainPath);
                 }
@@ -325,7 +330,6 @@ public class Auto_Func_Cones extends LinearOpMode {
                 horController.setTargetPosition(horTargetPos);
                 vertSlidesPID(vertController);
                 horSlidesPID(horController);
-                telemetry.update();
                 if (count == 1) {
                     readyPosCycle();
                 }
@@ -514,9 +518,6 @@ public class Auto_Func_Cones extends LinearOpMode {
                             else if(snapshotPos == 2){
                                 drive.followTrajectory(leftend);
                             }
-                            else{
-
-                            }
                             autoFSMState = AutoFSM.mainFinal;
                         }
                         break;
@@ -528,15 +529,17 @@ public class Auto_Func_Cones extends LinearOpMode {
                             else if(snapshotPos == 2){
                                 drive.followTrajectory(leftend2);
                             }
-                            else{
-
-                            }
-
+                            autoFSMState = AutoFSM.ending;
                         }
                         break;
+                    case ending:
+                        if (!drive.isBusy()) {
+                            timerCount = 1; //essentially a break statement
+                        }
 
 
-                }
+
+                        }
             }
         }
         public void vertSlidesPID (PIDFController controller){
@@ -569,7 +572,6 @@ public class Auto_Func_Cones extends LinearOpMode {
                     if (timer1.milliseconds() >= 300) {
                         clawServo.setPosition(0.45);
                         horTargetPos = CHANGEABLEhorTargetPos;
-                        telemetry.addData("2", lhArmMotor.getCurrentPosition());
                         if (Math.abs(lhArmMotor.getCurrentPosition() - CHANGEABLEhorTargetPos) < 60) {
                             count = 0;
                         }
@@ -591,8 +593,6 @@ public class Auto_Func_Cones extends LinearOpMode {
                     break;
                 case vertRetract:
                     if (Math.abs(vertMotor.getCurrentPosition() - vertTargetPos) < 20) {
-                        telemetry.addLine();
-                        telemetry.addData("ticks", vertMotor.getCurrentPosition());
                         vertTimer.reset();
                         outtakeState = Outtake.vertRetractP2;
                     }

@@ -45,13 +45,19 @@ public class Auto_Func_Cones extends LinearOpMode {
     PIDCoefficients horCoeffs = new PIDCoefficients(0.00305, 0, 0.00001);
     double vertTargetPos = 0;
     double horTargetPos = 0;
-    public static double backPos = 0.385;
+    public static double backPos = 0.372;
     public static double downPos = 0.88;
     public final double kG = 0.05;
     public double CHANGEABLEhorTargetPos = 650;
     public double fourBarIntakePos = 0.75;
     public static double angle = -12;
     public static double y = 0;
+    private SleeveDetection sleeveDetection;
+    private OpenCvCamera camera;
+    double parkingPos;
+    int snapshotPos = 1;
+    private final FtcDashboard dashboard = FtcDashboard.getInstance();
+    SleeveDetection.ParkingPosition snapshot = SleeveDetection.ParkingPosition.CENTER; //default
 
 
     /*
@@ -73,6 +79,7 @@ public class Auto_Func_Cones extends LinearOpMode {
         turretFront,
         fourBarClawOpen
     }
+
     public enum pickUpStack {
         clawClose,
         fourBarUp,
@@ -83,12 +90,14 @@ public class Auto_Func_Cones extends LinearOpMode {
         clawOpen,
         fourBarReset
     }
+
     public enum Outtake {
         vertExtend,
         readyPosFunc,
         vertRetract,
         vertRetractP2
     }
+
     public enum AutoFSM {
         mainPath1,
         mainPath2,
@@ -112,6 +121,9 @@ public class Auto_Func_Cones extends LinearOpMode {
         hor4,
         backward4,
         vert5,
+        mainEnd,
+        mainDecision,
+        mainFinal
     }
 
     readyPos readyPosState = readyPos.fourBarClawClose;
@@ -119,9 +131,9 @@ public class Auto_Func_Cones extends LinearOpMode {
     pickUpStack pickUpStackState = pickUpStack.clawClose;
     Outtake outtakeState = Outtake.vertExtend;
 
-    ElapsedTime timer1= new ElapsedTime();
-    ElapsedTime testTimer= new ElapsedTime();
-    ElapsedTime vertTimer= new ElapsedTime();
+    ElapsedTime timer1 = new ElapsedTime();
+    ElapsedTime testTimer = new ElapsedTime();
+    ElapsedTime vertTimer = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -159,12 +171,7 @@ public class Auto_Func_Cones extends LinearOpMode {
         Pose2d startPose = new Pose2d(35, -60, Math.toRadians(270));
 
 
-
         drive.setPoseEstimate(startPose);
-
-
-
-
 
 
         Trajectory mainPath = drive.trajectoryBuilder(startPose)
@@ -215,13 +222,45 @@ public class Auto_Func_Cones extends LinearOpMode {
                 .back(4)
                 .build();
 
-        Trajectory forward5 = drive.trajectoryBuilder(backward4.end())
-                .forward(4)
+        Trajectory mainend = drive.trajectoryBuilder(backward4.end())
+                .lineToLinearHeading(new Pose2d(30, -15, Math.toRadians(0)))
                 .build();
 
-        Trajectory backward5 = drive.trajectoryBuilder(forward5.end())
-                .back(4)
+
+        Trajectory rightend = drive.trajectoryBuilder(backward4.end())
+                .lineToLinearHeading(new Pose2d(30, -15, Math.toRadians(0)))
                 .build();
+
+        Trajectory rightend2 = drive.trajectoryBuilder(rightend.end())
+                .forward(25)
+                .build();
+
+        Trajectory leftend = drive.trajectoryBuilder(backward4.end())
+                .lineToLinearHeading(new Pose2d(30, -15, Math.toRadians(0)))
+                .build();
+
+        Trajectory leftend2 = drive.trajectoryBuilder(leftend.end())
+                .back(20)
+                .build();
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        sleeveDetection = new SleeveDetection();
+        FtcDashboard.getInstance().startCameraStream(camera, 0);
+        camera.setPipeline(sleeveDetection);
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                camera.startStreaming(800, 448, OpenCvCameraRotation.SIDEWAYS_RIGHT); //upright before
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+
+        telemetry.setMsTransmissionInterval(50);
 
         PIDFController vertController = new PIDFController(vertCoeffs);
         PIDFController horController = new PIDFController(horCoeffs);
@@ -243,327 +282,386 @@ public class Auto_Func_Cones extends LinearOpMode {
         leftFourBar.setPosition(0.5);
         rightFourBar.setPosition(0.5);
 
-
-        waitForStart();
-        while (opModeIsActive()) {
-            if(gamepad1.left_bumper) {
-                drive.followTrajectory(mainPath);
-            }
-            if(gamepad1.right_bumper) {
-                drive.followTrajectory(mainPath2);
-            }
-            if(gamepad1.dpad_up){
-                drive.followTrajectory(forward);
-            }
-            if(gamepad1.dpad_down){
-                drive.followTrajectory(backward);
-            }
-            vertController.setTargetPosition(vertTargetPos);
-            horController.setTargetPosition(horTargetPos);
-            vertSlidesPID(vertController);
-            horSlidesPID(horController);
+        while (!isStarted() && !isStopRequested()) {
+            telemetry.addData("Realtime Analysis", sleeveDetection.getPosition());
             telemetry.update();
-            if(count == 1){
-                readyPosCycle();
-            }
-            if(count2 == 1){
-                outtakeCycle();
-            }
-            if(count3 == 1){
-                pickUpStackCycle();
-            }
-            if(gamepad1.triangle){
-                outtakeState = Outtake.vertExtend;
-                readyPosState = readyPos.fourBarClawClose;
-                count2 = 1;
-            }
-            if(gamepad1.square){
-                pickUpStackState = pickUpStack.clawClose;
-                count3 = 1;
+            sleep(150);
+            /*
+            Trajectory building in init
+             */
+        }
+        snapshot = sleeveDetection.getPosition();
 
-            }
-            switch (autoFSMState) {
-                case mainPath1:
+        telemetry.addData("Snapshot POST-START Analysis", snapshot);
+        telemetry.update();
+        switch (snapshot) {
+            case LEFT:
+                snapshotPos = 2;
+                break;
+            case RIGHT:
+                snapshotPos = 3;
+                break;
+            case CENTER:
+                snapshotPos = 1;
+                break;
+        }
+
+
+            waitForStart();
+            while (opModeIsActive()) {
+                if (gamepad1.left_bumper) {
                     drive.followTrajectory(mainPath);
-                    autoFSMState = AutoFSM.mainPath2;
+                }
+                if (gamepad1.right_bumper) {
+                    drive.followTrajectory(mainPath2);
+                }
+                if (gamepad1.dpad_up) {
+                    drive.followTrajectory(forward);
+                }
+                if (gamepad1.dpad_down) {
+                    drive.followTrajectory(backward);
+                }
+                vertController.setTargetPosition(vertTargetPos);
+                horController.setTargetPosition(horTargetPos);
+                vertSlidesPID(vertController);
+                horSlidesPID(horController);
+                telemetry.update();
+                if (count == 1) {
+                    readyPosCycle();
+                }
+                if (count2 == 1) {
+                    outtakeCycle();
+                }
+                if (count3 == 1) {
+                    pickUpStackCycle();
+                }
+                if (gamepad1.triangle) {
+                    outtakeState = Outtake.vertExtend;
+                    readyPosState = readyPos.fourBarClawClose;
+                    count2 = 1;
+                }
+                if (gamepad1.square) {
+                    pickUpStackState = pickUpStack.clawClose;
+                    count3 = 1;
+
+                }
+                switch (autoFSMState) {
+                    case mainPath1:
+                        drive.followTrajectory(mainPath);
+                        autoFSMState = AutoFSM.mainPath2;
+                        break;
+                    case mainPath2:
+                        if (!drive.isBusy()) {
+                            drive.followTrajectory(mainPath2);
+                            autoFSMState = AutoFSM.mainPath3;
+                        }
+                        break;
+                    case mainPath3:
+                        if (!drive.isBusy()) {
+                            drive.followTrajectory(mainPath3);
+                            autoFSMState = AutoFSM.mainPath4;
+                        }
+                        break;
+                    case mainPath4:
+                        if (!drive.isBusy()) {
+                            drive.followTrajectory(mainPath4);
+                            autoFSMState = AutoFSM.mainPath5;
+                        }
+                        break;
+                    case mainPath5:
+                        if (!drive.isBusy()) {
+                            drive.followTrajectory(mainPath5);
+                            autoFSMState = AutoFSM.vert1;
+                        }
+                        break;
+                    case vert1:
+                        if (!drive.isBusy()) {
+                            outtakeState = Outtake.vertExtend;
+                            readyPosState = readyPos.fourBarClawClose;
+                            CHANGEABLEhorTargetPos = 645;
+                            fourBarIntakePos = 0.75;
+                            count2 = 1;
+                            autoFSMState = AutoFSM.forward1;
+                        }
+                        break;
+                    case forward1:
+                        if (count == 0 && count2 == 0) {
+                            drive.followTrajectory(forward);
+                            autoFSMState = AutoFSM.hor1;
+                        }
+                        break;
+                    case hor1:
+                        if (!drive.isBusy()) {
+                            pickUpStackState = pickUpStack.clawClose;
+                            count3 = 1;
+                            autoFSMState = AutoFSM.backward1;
+                        }
+                        break;
+                    case backward1:
+                        if (count3 == 0) {
+                            drive.followTrajectory(backward);
+                            autoFSMState = AutoFSM.vert2;
+                        }
+                        break;
+                    case vert2:
+                        if (!drive.isBusy()) {
+                            outtakeState = Outtake.vertExtend;
+                            readyPosState = readyPos.fourBarClawClose;
+                            CHANGEABLEhorTargetPos = 635;
+                            fourBarIntakePos = 0.78;
+                            count2 = 1;
+                            autoFSMState = AutoFSM.forward2;
+                        }
+                        break;
+                    case forward2:
+                        if (count == 0 && count2 == 0) {
+                            drive.followTrajectory(forward2);
+                            autoFSMState = AutoFSM.hor2;
+                        }
+                        break;
+                    case hor2:
+                        if (!drive.isBusy()) {
+                            pickUpStackState = pickUpStack.clawClose;
+                            count3 = 1;
+                            autoFSMState = AutoFSM.backward2;
+                        }
+                        break;
+                    case backward2:
+                        if (count3 == 0) {
+                            drive.followTrajectory(backward2);
+                            autoFSMState = AutoFSM.vert3;
+                        }
+                        break;
+                    case vert3:
+                        if (!drive.isBusy()) {
+                            outtakeState = Outtake.vertExtend;
+                            readyPosState = readyPos.fourBarClawClose;
+                            CHANGEABLEhorTargetPos = 625;
+                            fourBarIntakePos = 0.815;
+                            count2 = 1;
+                            autoFSMState = AutoFSM.forward3;
+                        }
+                        break;
+                    case forward3:
+                        if (count == 0 && count2 == 0) {
+                            drive.followTrajectory(forward3);
+                            autoFSMState = AutoFSM.hor3;
+                        }
+                        break;
+                    case hor3:
+                        if (!drive.isBusy()) {
+                            pickUpStackState = pickUpStack.clawClose;
+                            count3 = 1;
+                            autoFSMState = AutoFSM.backward3;
+                        }
+                        break;
+                    case backward3:
+                        if (count3 == 0) {
+                            drive.followTrajectory(backward3);
+                            autoFSMState = AutoFSM.vert4;
+                        }
+                        break;
+                    case vert4:
+                        if (!drive.isBusy()) {
+                            outtakeState = Outtake.vertExtend;
+                            readyPosState = readyPos.fourBarClawClose;
+                            CHANGEABLEhorTargetPos = 620;
+                            fourBarIntakePos = 0.84;
+                            count2 = 1;
+                            autoFSMState = AutoFSM.forward4;
+                        }
+                        break;
+                    case forward4:
+                        if (count == 0 && count2 == 0) {
+                            drive.followTrajectory(forward4);
+                            autoFSMState = AutoFSM.hor4;
+                        }
+                        break;
+                    case hor4:
+                        if (!drive.isBusy()) {
+                            pickUpStackState = pickUpStack.clawClose;
+                            count3 = 1;
+                            autoFSMState = AutoFSM.backward4;
+                        }
+                        break;
+                    case backward4:
+                        if (count3 == 0) {
+                            drive.followTrajectory(backward4);
+                            autoFSMState = AutoFSM.vert4;
+                        }
+                        break;
+                    case vert5:
+                        if (!drive.isBusy()) {
+                            outtakeState = Outtake.vertExtend;
+                            readyPosState = readyPos.fourBarClawClose;
+                            CHANGEABLEhorTargetPos = 0;
+                            fourBarIntakePos = 0.5;
+                            count2 = 1;
+                            autoFSMState = AutoFSM.mainEnd;
+                        }
+                        break;
+                    case mainEnd:
+                        if (count == 0 && count2 == 0) {
+                            drive.followTrajectory(mainend);
+                            autoFSMState = AutoFSM.mainDecision;
+                        }
+                        break;
+                    case mainDecision:
+                        if (!drive.isBusy()) {
+                            if(snapshotPos == 3){
+                                drive.followTrajectory(rightend);
+                            }
+                            else if(snapshotPos == 2){
+                                drive.followTrajectory(leftend);
+                            }
+                            else{
+
+                            }
+                            autoFSMState = AutoFSM.mainFinal;
+                        }
+                        break;
+                    case mainFinal:
+                        if (!drive.isBusy()) {
+                            if(snapshotPos == 3){
+                                drive.followTrajectory(rightend2);
+                            }
+                            else if(snapshotPos == 2){
+                                drive.followTrajectory(leftend2);
+                            }
+                            else{
+
+                            }
+
+                        }
+                        break;
+
+
+                }
+            }
+        }
+        public void vertSlidesPID (PIDFController controller){
+            double correction = controller.update(vertMotor.getCurrentPosition());
+            vertMotor.setPower(correction + kG);
+        }
+        public void horSlidesPID (PIDFController controller)
+        {
+            double correction = controller.update((lhArmMotor.getCurrentPosition() + rhArmMotor.getCurrentPosition()) / 2);
+            lhArmMotor.setPower(correction);
+            rhArmMotor.setPower(correction);
+        }
+        public void readyPosCycle () {
+            switch (readyPosState) {
+                case fourBarClawClose:
+                    leftFourBar.setPosition(fourBarIntakePos);
+                    rightFourBar.setPosition(fourBarIntakePos);
+                    clawServo.setPosition(0.62);
+                    timer1.reset();
+                    readyPosState = readyPos.turretFront;
                     break;
-                case mainPath2:
-                    if(!drive.isBusy()) {
-                        drive.followTrajectory(mainPath2);
-                        autoFSMState = AutoFSM.mainPath3;
+                case turretFront:
+                    if (timer1.milliseconds() >= 300) {
+                        turretServo.setPosition(0.85);
+                        timer1.reset();
+                        readyPosState = readyPos.fourBarClawOpen;
                     }
                     break;
-                case mainPath3:
-                    if(!drive.isBusy()) {
-                        drive.followTrajectory(mainPath3);
-                        autoFSMState = AutoFSM.mainPath4;
-                    }
-                    break;
-                case mainPath4:
-                    if(!drive.isBusy()) {
-                        drive.followTrajectory(mainPath4);
-                        autoFSMState = AutoFSM.mainPath5;
-                    }
-                    break;
-                case mainPath5:
-                    if(!drive.isBusy()) {
-                        drive.followTrajectory(mainPath5);
-                        autoFSMState = AutoFSM.vert1;
-                    }
-                    break;
-                case vert1:
-                    if(!drive.isBusy()) {
-                        outtakeState = Outtake.vertExtend;
-                        readyPosState = readyPos.fourBarClawClose;
-                        CHANGEABLEhorTargetPos = 645;
-                        fourBarIntakePos = 0.75;
-                        count2 = 1;
-                        autoFSMState = AutoFSM.forward1;
-                    }
-                    break;
-                case forward1:
-                    if(count == 0) {
-                        drive.followTrajectory(forward);
-                        autoFSMState = AutoFSM.hor1;
-                    }
-                    break;
-                case hor1:
-                    if(!drive.isBusy()) {
-                        pickUpStackState = pickUpStack.clawClose;
-                        count3 = 1;
-                        autoFSMState = AutoFSM.backward1;
-                    }
-                    break;
-                case backward1:
-                    if(count3 == 0) {
-                        drive.followTrajectory(backward);
-                        autoFSMState = AutoFSM.vert2;
-                    }
-                    break;
-                case vert2:
-                    if(!drive.isBusy()) {
-                        outtakeState = Outtake.vertExtend;
-                        readyPosState = readyPos.fourBarClawClose;
-                        CHANGEABLEhorTargetPos = 635;
-                        fourBarIntakePos = 0.78;
-                        count2 = 1;
-                        autoFSMState = AutoFSM.forward2;
-                    }
-                    break;
-                case forward2:
-                    if(count == 0) {
-                        drive.followTrajectory(forward2);
-                        autoFSMState = AutoFSM.hor2;
-                    }
-                    break;
-                case hor2:
-                    if(!drive.isBusy()) {
-                        pickUpStackState = pickUpStack.clawClose;
-                        count3 = 1;
-                        autoFSMState = AutoFSM.backward2;
-                    }
-                    break;
-                case backward2:
-                    if(count3 == 0) {
-                        drive.followTrajectory(backward2);
-                        autoFSMState = AutoFSM.vert3;
-                    }
-                    break;
-                case vert3:
-                    if(!drive.isBusy()) {
-                        outtakeState = Outtake.vertExtend;
-                        readyPosState = readyPos.fourBarClawClose;
-                        CHANGEABLEhorTargetPos = 625;
-                        fourBarIntakePos = 0.815;
-                        count2 = 1;
-                        autoFSMState = AutoFSM.forward3;
-                    }
-                    break;
-                case forward3:
-                    if(count == 0) {
-                        drive.followTrajectory(forward3);
-                        autoFSMState = AutoFSM.hor3;
-                    }
-                    break;
-                case hor3:
-                    if(!drive.isBusy()) {
-                        pickUpStackState = pickUpStack.clawClose;
-                        count3 = 1;
-                        autoFSMState = AutoFSM.backward3;
-                    }
-                    break;
-                case backward3:
-                    if(count3 == 0) {
-                        drive.followTrajectory(backward3);
-                        autoFSMState = AutoFSM.vert4;
-                    }
-                    break;
-                case vert4:
-                    if(!drive.isBusy()) {
-                        outtakeState = Outtake.vertExtend;
-                        readyPosState = readyPos.fourBarClawClose;
-                        CHANGEABLEhorTargetPos = 620;
-                        fourBarIntakePos = 0.84;
-                        count2 = 1;
-                        autoFSMState = AutoFSM.forward4;
-                    }
-                    break;
-                case forward4:
-                    if(count == 0) {
-                        drive.followTrajectory(forward4);
-                        autoFSMState = AutoFSM.hor4;
-                    }
-                    break;
-                case hor4:
-                    if(!drive.isBusy()) {
-                        pickUpStackState = pickUpStack.clawClose;
-                        count3 = 1;
-                        autoFSMState = AutoFSM.backward4;
-                    }
-                    break;
-                case backward4:
-                    if(count3 == 0) {
-                        drive.followTrajectory(backward4);
-                        autoFSMState = AutoFSM.vert4;
-                    }
-                    break;
-                case vert5:
-                    if(!drive.isBusy()) {
-                        outtakeState = Outtake.vertExtend;
-                        readyPosState = readyPos.fourBarClawClose;
-                        CHANGEABLEhorTargetPos = 0;
-                        fourBarIntakePos = 0.5;
-                        count2 = 1;
+                case fourBarClawOpen:
+                    if (timer1.milliseconds() >= 300) {
+                        clawServo.setPosition(0.45);
+                        horTargetPos = CHANGEABLEhorTargetPos;
+                        telemetry.addData("2", lhArmMotor.getCurrentPosition());
+                        if (Math.abs(lhArmMotor.getCurrentPosition() - CHANGEABLEhorTargetPos) < 60) {
+                            count = 0;
+                        }
                     }
                     break;
 
 
             }
         }
-    }
-    public void vertSlidesPID(PIDFController controller){
-        double correction = controller.update(vertMotor.getCurrentPosition());
-        vertMotor.setPower(correction + kG);
-    }
-    public void horSlidesPID(PIDFController controller)
-    {
-        double correction = controller.update((lhArmMotor.getCurrentPosition() + rhArmMotor.getCurrentPosition())/2);
-        lhArmMotor.setPower(correction);
-        rhArmMotor.setPower(correction);
-    }
-    public void readyPosCycle() {
-        switch (readyPosState) {
-            case fourBarClawClose:
-                leftFourBar.setPosition(fourBarIntakePos);
-                rightFourBar.setPosition(fourBarIntakePos);
-                clawServo.setPosition(0.62);
-                timer1.reset();
-                readyPosState = readyPos.turretFront;
-                break;
-            case turretFront:
-                if(timer1.milliseconds() >= 300) {
-                    turretServo.setPosition(0.85);
-                    timer1.reset();
-                    readyPosState = readyPos.fourBarClawOpen;
-                }
-                break;
-            case fourBarClawOpen:
-                if (timer1.milliseconds() >= 300) {
-                    clawServo.setPosition(0.45);
-                    horTargetPos = CHANGEABLEhorTargetPos;
-                    telemetry.addData("2", lhArmMotor.getCurrentPosition());
-                    if (Math.abs(lhArmMotor.getCurrentPosition() - CHANGEABLEhorTargetPos) < 60) {
-                        count = 0;
+        public void outtakeCycle () {
+            switch (outtakeState) {
+                case vertExtend:
+                    count = 1;
+                    outtakeState = Outtake.readyPosFunc;
+                    break;
+                case readyPosFunc:
+                    vertTargetPos = 860;
+                    outtakeState = Outtake.vertRetract;
+                    break;
+                case vertRetract:
+                    if (Math.abs(vertMotor.getCurrentPosition() - vertTargetPos) < 20) {
+                        telemetry.addLine();
+                        telemetry.addData("ticks", vertMotor.getCurrentPosition());
+                        vertTimer.reset();
+                        outtakeState = Outtake.vertRetractP2;
                     }
-                }
-                break;
-
-
-
-        }
-    }
-    public void outtakeCycle(){
-        switch(outtakeState){
-            case vertExtend:
-                count =1;
-                outtakeState = Outtake.readyPosFunc;
-                break;
-            case readyPosFunc:
-                vertTargetPos = 860;
-                outtakeState = Outtake.vertRetract;
-                break;
-            case vertRetract:
-                if (Math.abs(vertMotor.getCurrentPosition() - vertTargetPos) < 20) {
-                    telemetry.addLine();
-                    telemetry.addData("ticks", vertMotor.getCurrentPosition());
-                    vertTimer.reset();
-                    outtakeState = Outtake.vertRetractP2;
-                }
-                break;
-            case vertRetractP2:
-                if (vertTimer.milliseconds() >= 100) {
-                    vertTargetPos = -10;
-                    if (Math.abs(vertMotor.getCurrentPosition() - 0) < 40) {
-                        count2 = 0;
+                    break;
+                case vertRetractP2:
+                    if (vertTimer.milliseconds() >= 250) {
+                        vertTargetPos = 0;
+                        if (Math.abs(vertMotor.getCurrentPosition() - 0) < 15) {
+                            count2 = 0;
+                        }
                     }
-                }
-                break;
+                    break;
 
 
+            }
         }
-    }
-    public void pickUpStackCycle(){
-        switch (pickUpStackState) {
-            case clawClose:
-                clawServo.setPosition(0.61);
+        public void pickUpStackCycle () {
+            switch (pickUpStackState) {
+                case clawClose:
+                    clawServo.setPosition(0.61);
                     sleep(100);
                     pickUpStackState = pickUpStack.fourBarUp;
-                break;
-            case fourBarUp:
-                pickUpStackState = pickUpStack.horRetract;
-                break;
-            case horRetract:
-                leftFourBar.setPosition(0.6);
-                rightFourBar.setPosition(0.6);
-                sleep(500);
-                horTargetPos = 200;
-                pickUpStackState = pickUpStack.fourBarBack;
-                break;
-            case fourBarBack:
-                if (Math.abs(lhArmMotor.getCurrentPosition() - 200) < 45) {
-                    leftFourBar.setPosition(0.75);
-                    rightFourBar.setPosition(0.75);
-                    sleep(150);
-                    turretServo.setPosition(0.11);
-                    horTargetPos = -40;
-                    pickUpStackState = pickUpStack.turretBack;
-                }
-                break;
-            case turretBack:
-                pickUpStackState = pickUpStack.fourBarOuttake;
-                break;
-            case fourBarOuttake:
-                if (Math.abs(lhArmMotor.getCurrentPosition() - 0) < 45) {
-                    sleep(200);
-                    leftFourBar.setPosition(backPos);
-                    rightFourBar.setPosition(backPos);
-                    pickUpStackState = pickUpStack.clawOpen;
-                }
-                break;
-            case clawOpen:
-                sleep(750);
-                clawServo.setPosition(0.4);
-                pickUpStackState = pickUpStack.fourBarReset;
-                break;
-            case fourBarReset:
-                sleep(100);
-                leftFourBar.setPosition(0.5);
-                rightFourBar.setPosition(0.5);
-                count3 = 0;
-                break;
+                    break;
+                case fourBarUp:
+                    pickUpStackState = pickUpStack.horRetract;
+                    break;
+                case horRetract:
+                    leftFourBar.setPosition(0.6);
+                    rightFourBar.setPosition(0.6);
+                    sleep(500);
+                    horTargetPos = 200;
+                    pickUpStackState = pickUpStack.fourBarBack;
+                    break;
+                case fourBarBack:
+                    if (Math.abs(lhArmMotor.getCurrentPosition() - 200) < 45) {
+                        leftFourBar.setPosition(0.75);
+                        rightFourBar.setPosition(0.75);
+                        sleep(150);
+                        turretServo.setPosition(0.12);
+                        horTargetPos = -40;
+                        pickUpStackState = pickUpStack.turretBack;
+                    }
+                    break;
+                case turretBack:
+                    pickUpStackState = pickUpStack.fourBarOuttake;
+                    break;
+                case fourBarOuttake:
+                    if (Math.abs(lhArmMotor.getCurrentPosition() - 0) < 45) {
+                        sleep(200);
+                        leftFourBar.setPosition(backPos);
+                        rightFourBar.setPosition(backPos);
+                        pickUpStackState = pickUpStack.clawOpen;
+                    }
+                    break;
+                case clawOpen:
+                    sleep(750);
+                    clawServo.setPosition(0.4);
+                    pickUpStackState = pickUpStack.fourBarReset;
+                    break;
+                case fourBarReset:
+                    sleep(100);
+                    leftFourBar.setPosition(0.5);
+                    rightFourBar.setPosition(0.5);
+                    count3 = 0;
+                    break;
 
 
+            }
         }
-    }
+
 }
 

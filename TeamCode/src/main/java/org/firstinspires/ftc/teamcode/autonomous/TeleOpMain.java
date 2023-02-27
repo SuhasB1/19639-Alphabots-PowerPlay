@@ -38,13 +38,13 @@ public class TeleOpMain extends LinearOpMode {
     public static double horTargetPos = 0;
     double vertvertTargetPos = 0;
     double horhorTargetPos = 0;
-    public static double turretPos = 0.11;
+    public static double turretPos = 0.12;
     public static double vertDeadband = 20;
-    public static double backPos = 0.385;
+    public static double backPos = 0.372;
     public static double downPos = 0.88;
     public static double coneInterval = 0;
     public final double kG = 0.05;
-    public static double wait = 1000;
+    public static double wait = 250;
     public double coneCount = 0;
     double horSpeed = 0.75;
     public double multiplier = 1;
@@ -408,7 +408,7 @@ public class TeleOpMain extends LinearOpMode {
                 break;
             case vertRetractP2:
                 if (vertTimer.milliseconds() >= wait) {
-                    vertTargetPos = -10;
+                    vertTargetPos = 0;
                     count2 = 0;
                 }
                 break;

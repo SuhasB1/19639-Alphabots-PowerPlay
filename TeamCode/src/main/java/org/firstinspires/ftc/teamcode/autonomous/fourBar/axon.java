@@ -41,7 +41,9 @@ public class axon extends LinearOpMode {
         waitForStart();
         while(opModeIsActive())
         {
-           turretServo.setPosition(pos);
+          leftFourBar.setPosition(pos);
+          rightFourBar.setPosition(pos);
+
         }
     }
 }

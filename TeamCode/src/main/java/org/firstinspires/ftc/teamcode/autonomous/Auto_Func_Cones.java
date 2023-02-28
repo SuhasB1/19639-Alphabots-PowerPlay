@@ -313,6 +313,8 @@ public class Auto_Func_Cones extends LinearOpMode {
             while (opModeIsActive() && timerCount == 0) {
                 telemetry.addData("VERT Ticks:", vertMotor.getCurrentPosition());
                 telemetry.addData("HOR Ticks:", lhArmMotor.getCurrentPosition());
+                telemetry.addData("vert Power:", vertMotor.getPower());
+
                 telemetry.update();
                 if (gamepad1.left_bumper) {
                     drive.followTrajectory(mainPath);

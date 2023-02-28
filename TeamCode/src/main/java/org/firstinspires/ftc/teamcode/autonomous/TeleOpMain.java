@@ -375,7 +375,7 @@ public class TeleOpMain extends LinearOpMode {
                     }
                 break;
             case clawOpen:
-                sleep(700);
+                sleep(1000);
                 clawServo.setPosition(0.4);
                 pickUpState = pickUp.fourBarReset;
                 break;

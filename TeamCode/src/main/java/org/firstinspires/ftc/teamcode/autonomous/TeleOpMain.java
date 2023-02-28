@@ -351,13 +351,14 @@ public class TeleOpMain extends LinearOpMode {
                 pickUpState = pickUp.horRetract;
                 break;
             case horRetract:
+                leftFourBar.setPosition(0.75);
+                rightFourBar.setPosition(0.75);
+                sleep(200);
                 horSpeed = 1;
                 horTargetPos = -20;
                 pickUpState = pickUp.fourBarTurretBack;
                 break;
             case fourBarTurretBack:
-                leftFourBar.setPosition(0.75);
-                rightFourBar.setPosition(0.75);
                 turretServo.setPosition(turretPos);
                 testTimer.reset();
                 pickUpState = pickUp.fourBarOuttake;

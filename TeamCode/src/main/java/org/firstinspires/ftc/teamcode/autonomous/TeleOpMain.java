@@ -294,7 +294,7 @@ public class TeleOpMain extends LinearOpMode {
             case fourBarClawClose:
                 leftFourBar.setPosition(0.75);
                 rightFourBar.setPosition(0.75);
-                clawServo.setPosition(0.6);
+                clawServo.setPosition(0.7);
                 timer1.reset();
                 telemetry.addData("1", testTimer.milliseconds());
                 readyPosState = readyPos.turretFront;

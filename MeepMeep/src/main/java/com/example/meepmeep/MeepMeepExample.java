@@ -23,10 +23,12 @@ public class MeepMeepExample {
                 .setConstraints(54.8, 54.8, Math.toRadians(220), Math.toRadians(200),13)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(90)))
-                                .lineToConstantHeading(new Vector2d(35, -45))
-                                .lineToLinearHeading(new Pose2d(35, -35, Math.toRadians(0)))
-                                .lineToConstantHeading(new Vector2d(32, -10))
-                                .lineToSplineHeading(new Pose2d(30, 0.5, Math.toRadians(-13))) //-14.0362435
+                                .lineToConstantHeading(new Vector2d(35, -10))
+                                .lineToLinearHeading(new Pose2d(35, -35, Math.toRadians(25)))
+                                .lineToLinearHeading(new Pose2d(35, -30, Math.toRadians(270)))
+                                .lineToSplineHeading(new Pose2d(28.5, 0, Math.toRadians(-12))) //-14.0362435
+                                 .forward(5.1)
+
 
                                 .build()
                 );

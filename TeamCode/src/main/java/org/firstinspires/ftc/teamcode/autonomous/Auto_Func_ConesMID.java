@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,24 +16,16 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.control.PIDFController;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.internal.android.dx.cf.direct.CodeObserver;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Config
-@Autonomous(name="aaWORKINGAuto")
-public class Auto_Func_Cones extends LinearOpMode {
+@Autonomous(name="aaWORKINGAutoMIDDDDDD")
+public class Auto_Func_ConesMID extends LinearOpMode {
 
     ServoImplEx leftFourBar;
     ServoImplEx rightFourBar;
@@ -50,8 +46,8 @@ public class Auto_Func_Cones extends LinearOpMode {
     public final double kG = 0.05;
     public double CHANGEABLEhorTargetPos = 650;
     public double fourBarIntakePos = 0.75;
-    public static double angle = -12;
-    public static double y = 0;
+    public static double angle = 15;
+    public static double y = -20;
     private SleeveDetection sleeveDetection;
     private OpenCvCamera camera;
     int snapshotPos = 1;
@@ -175,52 +171,53 @@ public class Auto_Func_Cones extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
 
+
         Trajectory mainPath = drive.trajectoryBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(35, -40))
+                .lineToConstantHeading(new Vector2d(35, -12))
                 .build();
 
         Trajectory mainPath2 = drive.trajectoryBuilder(mainPath.end())
-                .lineToLinearHeading(new Pose2d(35, -35, Math.toRadians(25)))
+                .lineToConstantHeading(new Vector2d(35, -30))
                 .build();
         Trajectory mainPath3 = drive.trajectoryBuilder(mainPath2.end())
-                .lineToLinearHeading(new Pose2d(35, -30, Math.toRadians(270)))
+                .lineToSplineHeading(new Pose2d(28.5, y, Math.toRadians(angle))) //-14.0362435
                 .build();
         Trajectory mainPath4 = drive.trajectoryBuilder(mainPath3.end())
-                .lineToConstantHeading(new Vector2d(35, -10))
+                .lineToLinearHeading(new Pose2d(30, -12, Math.toRadians(0)))
                 .build();
         Trajectory mainPath5 = drive.trajectoryBuilder(mainPath4.end())
-                .lineToSplineHeading(new Pose2d(28.5, 0, Math.toRadians(-12))) //-14.0362435
+                .back(20)
                 .build();
-        Trajectory forward = drive.trajectoryBuilder(mainPath5.end())
-                .forward(4)
+        Trajectory forward = drive.trajectoryBuilder(mainPath3.end())
+                .forward(5.2)
                 .build();
 
         Trajectory backward = drive.trajectoryBuilder(forward.end())
-                .back(4)
+                .back(5.2)
                 .build();
 
         Trajectory forward2 = drive.trajectoryBuilder(backward.end())
-                .forward(4)
+                .forward(5.2)
                 .build();
 
         Trajectory backward2 = drive.trajectoryBuilder(forward2.end())
-                .back(4)
+                .back(5.2)
                 .build();
 
         Trajectory forward3 = drive.trajectoryBuilder(backward2.end())
-                .forward(4)
+                .forward(5.2)
                 .build();
 
         Trajectory backward3 = drive.trajectoryBuilder(forward3.end())
-                .back(4)
+                .back(5.2)
                 .build();
 
         Trajectory forward4 = drive.trajectoryBuilder(backward3.end())
-                .forward(4)
+                .forward(5.2)
                 .build();
 
         Trajectory backward4 = drive.trajectoryBuilder(forward4.end())
-                .back(4)
+                .back(5.2)
                 .build();
 
         Trajectory mainend = drive.trajectoryBuilder(backward4.end())
@@ -374,20 +371,10 @@ public class Auto_Func_Cones extends LinearOpMode {
                     }
                     break;
                 case mainPath4:
-                    if (!drive.isBusy()) {
-                        drive.followTrajectory(mainPath4);
-                        telemetry.addLine("Ran mainpath4");
-                        telemetry.update();
                         autoFSMState = AutoFSM.mainPath5;
-                    }
                     break;
                 case mainPath5:
-                    if (!drive.isBusy()) {
-                        drive.followTrajectory(mainPath5);
-                        telemetry.addLine("Ran mainpath5");
-                        telemetry.update();
                         autoFSMState = AutoFSM.vert1;
-                    }
                     break;
                 case vert1:
                     if (!drive.isBusy()) {
@@ -406,6 +393,8 @@ public class Auto_Func_Cones extends LinearOpMode {
                 case forward1:
                     if (count == 0 && count2 == 0) {
                         drive.followTrajectory(forward);
+                        telemetry.addData("pose", drive.getPoseEstimate());
+                        telemetry.addLine();
                         telemetry.addLine("Ran foward");
                         telemetry.update();
                         autoFSMState = AutoFSM.hor1;
@@ -563,7 +552,7 @@ public class Auto_Func_Cones extends LinearOpMode {
                     if (count == 0 && count2 == 0) {
                         telemetry.addLine("in main");
                         telemetry.update();
-                        drive.followTrajectory(mainend);
+                        drive.followTrajectory(mainPath4);
                         autoFSMState = AutoFSM.mainDecision;
                     }
                     break;
@@ -572,12 +561,7 @@ public class Auto_Func_Cones extends LinearOpMode {
                     break;
                 case mainFinal:
                     if (!drive.isBusy()) {
-                        if(snapshotPos == 3){
-                            drive.followTrajectory(rightend2);
-                        }
-                        else if(snapshotPos == 2){
-                            drive.followTrajectory(leftend2);
-                        }
+                        drive.followTrajectory(mainPath5);
                         autoFSMState = AutoFSM.ending;
                     }
                     break;
@@ -637,7 +621,7 @@ public class Auto_Func_Cones extends LinearOpMode {
                 outtakeState = Outtake.readyPosFunc;
                 break;
             case readyPosFunc:
-                vertTargetPos = 860;
+                vertTargetPos = 560;
                 outtakeState = Outtake.vertRetract;
                 break;
             case vertRetract:

@@ -9,6 +9,7 @@ Ex: "Suhas_TenBasicMovementFunctions"
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 //Make sure you have read the comments above before moving on!!
 // You will need more imports to get this program to work
 //To import a function, right click on any red underline you see
@@ -57,14 +58,14 @@ public class TenBasicMovementFunctions extends OpMode {
         leftWheel.setPower(0.5);
     }
 
-    public void strafeLeft{
+    public void strafeLeft(){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(-0.5);
     }
 
-    public void strafeRight{
+    public void strafeRight(){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(-0.5);
         rightWheel.setPower(0.5);

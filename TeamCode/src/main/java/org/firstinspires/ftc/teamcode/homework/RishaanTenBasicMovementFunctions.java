@@ -1,0 +1,117 @@
+package org.firstinspires.ftc.teamcode.homework;
+/*
+IMPORTANT: Before you start create a copy of this program. DO NOT EDIT THIS CURRENT PROGRAM.
+Create a copy by right clicking the program name, then press copy.
+Right click the program name again and press paste. Once you complete this, upload your new program to github
+When copying the program, make sure to edit the program name by adding ur name at the start.
+Ex: "Suhas_TenBasicMovementFunctions"
+*/
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+//Make sure you have read the comments above before moving on!!
+// You will need more imports to get this program to work
+//To import a function, right click on any red underline you see
+//Press Show Context Actions
+//Press import class and it should automatically add it here.
+
+public class RishaanTenBasicMovementFunctions extends OpMode {
+
+    DcMotor leftWheel;
+    DcMotor rightWheel;
+    DcMotor frontLeftWheel;
+    DcMotor frontRightWheel;
+
+    @Override
+    public void init() {
+        frontLeftWheel = hardwareMap.dcMotor.get("leftFront");
+        frontRightWheel = hardwareMap.dcMotor.get("rightFront");
+        rightWheel = hardwareMap.dcMotor.get("rightRear");
+        leftWheel = hardwareMap.dcMotor.get("leftRear");
+
+
+
+        frontLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    @Override
+    public void loop() {
+    }
+
+    @Override
+    public void start(){
+    }
+
+    public void moveForward(){
+        frontLeftWheel.setPower(0.5);
+        frontRightWheel.setPower(0.5);
+        rightWheel.setPower(0.5);
+        leftWheel.setPower(0.5);
+    }
+
+    public void strafeLeft{
+        frontLeftWheel.setPower(-0.5);
+        leftWheel.setPower(0.5);
+        frontRightWheel.setPower(0.5);
+        rightWheel.setPower(-0.5);
+    }
+
+    public void strafeRight{
+        frontLeftWheel.setPower(0.5);
+        leftWheel.setPower(-0.5);
+        rightWheel.setPower(0.5);
+        frontRightWheel.setPower(-0.5);
+    }
+
+    public void backward(){
+        frontRightWheel.setPower(-0.5);
+        rightWheel.setPower(-0.5);
+        frontLeftWheel.setPower(-0.5);
+        leftWheel.setPower(-0.5);
+    }
+
+    public void turnLeft(){
+        frontLeftWheel.setPower(-0.5);
+        leftWheel.setPower(-0.5);
+        frontRightWheel.setPower(0.5);
+        rightWheel.setPower(0.5);
+    }
+    public void turnRight(){
+        frontLeftWheel.setPower(0.5);
+        leftWheel.setPower(0.5);
+        frontRightWheel.setPower(-0.5);
+        rightWheel.setPower(-0.5);
+    }
+
+    public void diagonalTopLeft(){
+        frontRightWheel.setPower(0.5);
+        leftWheel.setPower(0.5);
+    }
+
+
+    public void diagonalBottomLeft(){
+        frontLeftWheel.setPower(-0.5);
+        rightWheel.setPower(-0.5);
+    }
+
+
+    public void diagonalTopRight(){
+        frontLeftWheel.setPower(0.5);
+        rightWheel.setPower(0.5);
+    }
+
+
+    public void diagonalBottomRight(){
+        frontRightWheel.setPower(-0.5);
+        leftWheel.setPower(-0.5);
+    }
+}
+

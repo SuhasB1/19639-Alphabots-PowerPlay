@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PwmControl;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Config
+@Disabled
 @Autonomous(name="axon", group="Training")
 public class axon extends LinearOpMode {
 
@@ -19,7 +21,7 @@ public class axon extends LinearOpMode {
     ServoImplEx rightFourBar;
     ServoImplEx turretServo;
 
-    public static double pos = 0.1;
+    public static double pos = 0.85;
 
 
     @Override
@@ -41,8 +43,7 @@ public class axon extends LinearOpMode {
         waitForStart();
         while(opModeIsActive())
         {
-          leftFourBar.setPosition(pos);
-          rightFourBar.setPosition(pos);
+          turretServo.setPosition(pos);
 
         }
     }

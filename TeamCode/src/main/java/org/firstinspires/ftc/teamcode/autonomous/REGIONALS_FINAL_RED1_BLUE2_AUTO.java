@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -23,6 +24,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Config
+@Disabled
+
 @Autonomous(name="aaWORKINGAuto")
 public class REGIONALS_FINAL_RED1_BLUE2_AUTO extends LinearOpMode {
 
@@ -193,7 +196,7 @@ public class REGIONALS_FINAL_RED1_BLUE2_AUTO extends LinearOpMode {
                 .build();
 
         Trajectory backward = drive.trajectoryBuilder(forward.end())
-                .lineToSplineHeading(new Pose2d(28.5, 0, Math.toRadians(-12))) //-14.0362435
+                .back(5.1)
                 .build();
 
         Trajectory forward2 = drive.trajectoryBuilder(backward.end())

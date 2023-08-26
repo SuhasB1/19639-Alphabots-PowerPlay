@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -9,7 +12,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 @Config
+@Disabled
+
 @TeleOp(name="TeleOpStrafer", group="Training")
 public class teleopstrafer extends OpMode {
 
@@ -49,11 +57,9 @@ public class teleopstrafer extends OpMode {
             VERT_RETRACT
 
         }
+    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-
-
-
-        private ElapsedTime runtime= new ElapsedTime();
+    private ElapsedTime runtime= new ElapsedTime();
         ElapsedTime timer1= new ElapsedTime();
         ElapsedTime timer2= new ElapsedTime();
     CYCLE2 cycleState2 = CYCLE2.CYCLE_START;
@@ -61,6 +67,7 @@ public class teleopstrafer extends OpMode {
 
         @Override
         public void init() {
+            drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftWheel = hardwareMap.get(DcMotorEx.class, "leftFront");
             backLeftWheel = hardwareMap.get(DcMotorEx.class, "leftRear");
             backRightWheel = hardwareMap.get(DcMotorEx.class, "rightRear");
@@ -193,6 +200,26 @@ public class teleopstrafer extends OpMode {
                 intakeServo2.setPower(0.5);
                 servoFuncLoop(pos);
             }
+            // Read pose
+            Pose2d poseEstimate = drive.getPoseEstimate();
+
+            Vector2d input = new Vector2d(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x
+            ).rotated(-poseEstimate.getHeading());
+
+            // Pass in the rotated input + right stick value for rotation
+            // Rotation is not part of the rotated input thus must be passed in separately
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            input.getX(),
+                            input.getY(),
+                            -gamepad1.right_stick_x
+                    )
+            );
+
+            // Update everything. Odometry. Etc.
+            drive.update();
             /*if(gamepad2.right_bumper){
                 horSlidesMovement("full");
                 sleep(2000);

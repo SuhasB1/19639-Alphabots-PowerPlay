@@ -43,7 +43,6 @@ import java.util.Vector;
  * is recommended that you use the FollowerPIDTuner opmode for further fine tuning.
  */
 @Config
-@Autonomous
 public class autored1 extends LinearOpMode {
 
     public static double DISTANCE = 50;

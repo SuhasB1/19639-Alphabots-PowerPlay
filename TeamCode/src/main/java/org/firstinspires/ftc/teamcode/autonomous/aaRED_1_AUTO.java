@@ -22,15 +22,20 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
@@ -38,26 +43,27 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-@Autonomous(name="Auto_RED1")
+@Autonomous(name="CAM_ONLY_Auto_RED1")
 public class aaRED_1_AUTO extends LinearOpMode
 {
     private SleeveDetection sleeveDetection;
     private OpenCvCamera camera;
     double parkingPos;
 
-
-    Servo fourBarServo;
-    Servo fourBarServo2;
+    ServoImplEx leftFourBar;
+    ServoImplEx rightFourBar;
     DcMotor rhArmMotor;
     DcMotor lhArmMotor;
+    double correction;
     public double targetPositionHor = 0;
     public static double pos = 0.5;
     SleeveDetection.ParkingPosition snapshot = SleeveDetection.ParkingPosition.CENTER; //default
+    PIDCoefficients horCoeffs = new PIDCoefficients(0.00305, 0, 0.00001);
 
     @Override
     public void runOpMode()
     {
+        PIDFController horController = new PIDFController(horCoeffs);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         rhArmMotor = hardwareMap.get(DcMotorEx.class,"rhArmMotor");
         lhArmMotor = hardwareMap.get(DcMotorEx.class, "lhArmMotor");
@@ -72,12 +78,13 @@ public class aaRED_1_AUTO extends LinearOpMode
         lhArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         rhArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        fourBarServo = hardwareMap.servo.get("fourBarServo");
-        fourBarServo2 = hardwareMap.servo.get("fourBarServo2");
-
-        fourBarServo.setDirection(Servo.Direction.REVERSE);
-        fourBarServo.setPosition(0.5);
-        fourBarServo2.setPosition(0.5);
+        leftFourBar = hardwareMap.get(ServoImplEx.class, "leftFourBar");
+        rightFourBar = hardwareMap.get(ServoImplEx.class, "rightFourBar");
+        leftFourBar.setDirection(Servo.Direction.REVERSE);
+        leftFourBar.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        rightFourBar.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        leftFourBar.setPosition(0.4);
+        rightFourBar.setPosition(0.4);
 
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -102,7 +109,7 @@ public class aaRED_1_AUTO extends LinearOpMode
 
         telemetry.setMsTransmissionInterval(50);
 
-        Pose2d startPose = new Pose2d(35, -60, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(35, -60, Math.toRadians(270));
 
         drive.setPoseEstimate(startPose);
 
@@ -146,30 +153,21 @@ public class aaRED_1_AUTO extends LinearOpMode
 
         waitForStart();
         while(opModeIsActive()){
+            correction = horController.update((lhArmMotor.getCurrentPosition() + rhArmMotor.getCurrentPosition()) / 2);
+            lhArmMotor.setPower(correction);
+            rhArmMotor.setPower(correction);
+            horController.setTargetPosition(-10);
             switch(snapshot){
                 case LEFT:
-                    horSlidesPID(0);
-
                     drive.followTrajectory(main);
                     drive.followTrajectory(left);
-                    fourBarServo.setPosition(0.875);
-                    fourBarServo2.setPosition(0.875);
-                    sleep(2000);
                     break;
                 case RIGHT:
-                    horSlidesPID(0);
                     drive.followTrajectory(main);
                     drive.followTrajectory(right);
-                    fourBarServo.setPosition(0.875);
-                    fourBarServo2.setPosition(0.875);
-                    sleep(2000);
                     break;
                 case CENTER:
-                    horSlidesPID(0);
                     drive.followTrajectory(main);
-                    fourBarServo.setPosition(0.875);
-                    fourBarServo2.setPosition(0.875);
-                    sleep(2000);
                     break;
             }
             break;
@@ -179,52 +177,5 @@ public class aaRED_1_AUTO extends LinearOpMode
 
 
     }
-    public void horSlidesPID(double targetPosition){
-        double currentLiftPosition = rhArmMotor.getCurrentPosition();  // Get the position of the lift in ticks
-
-        double liftError = (targetPosition-5) - currentLiftPosition;  // determine the error in ticks between our current lift position and where it should be
-        double liftPower = 0;
-        double liftError2 = (targetPosition-5) - lhArmMotor.getCurrentPosition();
-        double liftPower2 = 0;
-
-        if (liftError > 5 || liftError < -5){// Hysteresis band to provide damping/braking zone to reduce oscillations
-
-            liftPower = ((liftError * 0.005)); // PID with P and D factor plus feed forward
-
-            if (liftPower > .65){
-                liftPower = .65;
-            }
-            if (liftPower < -.65){
-                liftPower = -.65;
-            }
-        }
-        else {
-
-            liftPower = 0;
-
-        } // end of if-else
-
-        if (liftError2 > 5 || liftError2 < -5){              // Hysteresis band to provide damping/braking zone to reduce oscillations
-
-            liftPower2 = ((liftError2 * 0.005));   		// PID with P only factor plus feed forward
-
-            if (liftPower2 > .65){
-                liftPower2 = .65;
-            }
-            if (liftPower2 < -.65){
-                liftPower2 = -.65;
-            }
-        }
-        else {
-            liftPower2 = 0;
-
-        }
-
-        rhArmMotor.setPower(liftPower);
-        lhArmMotor.setPower(liftPower);
-
-
-    }
-
 
 }

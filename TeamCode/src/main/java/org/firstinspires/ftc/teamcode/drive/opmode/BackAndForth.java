@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  */
 @Config
 
+@Disabled
 
 @Autonomous(group = "drive")
 public class BackAndForth extends LinearOpMode {

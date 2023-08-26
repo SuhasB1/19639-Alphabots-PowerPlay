@@ -22,12 +22,10 @@ public class MeepMeepExample {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(54.8, 54.8, Math.toRadians(220), Math.toRadians(200),13)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(90)))
-                                .lineToConstantHeading(new Vector2d(35, -10))
-                                .lineToLinearHeading(new Pose2d(35, -35, Math.toRadians(25)))
-                                .lineToLinearHeading(new Pose2d(35, -30, Math.toRadians(270)))
-                                .lineToSplineHeading(new Pose2d(28.5, 0, Math.toRadians(-12))) //-14.0362435
-                                 .forward(5.1)
+                        drive.trajectorySequenceBuilder(new Pose2d(35, -60, Math.toRadians(270)))
+                                .lineToLinearHeading(new Pose2d(30, -15, Math.toRadians(0)))
+
+
 
 
                                 .build()

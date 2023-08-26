@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -24,6 +25,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Config
+@Disabled
+
 @Autonomous(name="aaWORKINGAutoMIDDDDDD")
 public class Auto_Func_ConesMID extends LinearOpMode {
 
@@ -143,9 +146,7 @@ public class Auto_Func_ConesMID extends LinearOpMode {
         clawServo = hardwareMap.get(ServoImplEx.class, "clawServo");
         turretServo = hardwareMap.get(ServoImplEx.class, "turretServo");
 
-
         leftFourBar.setDirection(Servo.Direction.REVERSE);
-
         leftFourBar.setPwmRange(new PwmControl.PwmRange(500, 2500));
         rightFourBar.setPwmRange(new PwmControl.PwmRange(500, 2500));
 

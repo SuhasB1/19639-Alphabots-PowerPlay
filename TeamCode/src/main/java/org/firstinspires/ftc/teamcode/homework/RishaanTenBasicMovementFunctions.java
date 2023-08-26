@@ -58,6 +58,7 @@ public class RishaanTenBasicMovementFunctions extends OpMode {
         leftWheel.setPower(0.5);
     }
 
+
     public void strafeLeft(){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(0.5);

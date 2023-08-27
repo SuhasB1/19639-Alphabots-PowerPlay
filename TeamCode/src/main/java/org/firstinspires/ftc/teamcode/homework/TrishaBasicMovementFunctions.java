@@ -51,59 +51,60 @@ public class TrishaBasicMovementFunctions extends OpMode {
     public void start(){
     }
 
-    public void moveForward(){
+    public void moveForward(int time){
         frontLeftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
     }
 
-    public void strafeLeft(){
+    public void strafeLeft(int time){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(-0.5);
     }
 
-    public void strafeRight(){
+    public void strafeRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(-0.5);
         rightWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
     }
 
-    public void backward(){
+    public void backward(int time){
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
     }
 
-    public void turnLeft(){
+    public void turnLeft(int time){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
     }
-    public void turnRight(){
+    public void turnRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
     }
 
-    public void diagonalTopLeft(){
+    public void diagonalTopLeft(int time){
         frontRightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
     }
 
 
-    public void diagonalBottomLeft(){
+    public void diagonalBottomLeft(int time){
         frontLeftWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
     }
 
 
+    public void diagonalTopRight(int time){
     public void diagonalTopRight(){
         frontLeftWheel.setPower(0.5);
         rightWheel.setPower(0.5);
@@ -111,16 +112,27 @@ public class TrishaBasicMovementFunctions extends OpMode {
 
 
 
-    public void diagonalBottomRight(){
+    public void diagonalBottomRight(int time){
         frontRightWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
+        stopMotor();
+
     }
 
-    public void sleep(int milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void sleep(int milliseconds){
+            try {
+                Thread.sleep(milliseconds);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void stopMotor(){
+            frontLeftWheel.setPower(0);
+            frontRightWheel.setPower(0);
+            rightWheel.setPower(0);
+            leftWheel.setPower(0);
+
         }
     }
 }

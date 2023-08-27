@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="TeleOpStarfer", group="basic_move")
-public class TeleoOp  extends OpMode{
+public class basic_move  extends OpMode{
     DcMotor rightWheel;
     DcMotor leftWheel;
     DcMotor backLeftWheel;

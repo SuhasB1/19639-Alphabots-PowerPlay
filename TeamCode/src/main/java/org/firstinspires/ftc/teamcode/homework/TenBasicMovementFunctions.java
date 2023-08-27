@@ -7,6 +7,7 @@ When copying the program, make sure to edit the program name by adding ur name a
 Ex: "Suhas_TenBasicMovementFunctions"
 */
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 //To import a function, right click on any red underline you see
 //Press Show Context Actions
 //Press import class and it should automatically add it here.
-
+@Autonomous(name="basic movement")
 public class TenBasicMovementFunctions extends OpMode {
 
     DcMotor leftWheel;
@@ -33,7 +34,7 @@ public class TenBasicMovementFunctions extends OpMode {
 
 
         frontLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
@@ -49,71 +50,93 @@ public class TenBasicMovementFunctions extends OpMode {
 
     @Override
     public void start(){
+        moveForward(500);
+        backward(500);
     }
 
-    public void moveForward(){
+    public void moveForward(int time){
         frontLeftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
-    public void strafeLeft(){
+    public void strafeLeft(int time){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(-0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
-    public void strafeRight(){
+    public void strafeRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(-0.5);
         rightWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
-    public void backward(){
+    public void backward(int time){
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
-    public void turnLeft(){
+    public void turnLeft(int time){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
+        sleep(time);
+        stopAllMotors();
     }
-    public void turnRight(){
+    public void turnRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
-    public void diagonalTopLeft(){
+    public void diagonalTopLeft(int time){
         frontRightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
 
-    public void diagonalBottomLeft(){
+    public void diagonalBottomLeft(int time){
         frontLeftWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
 
-    public void diagonalTopRight(){
+    public void diagonalTopRight(int time){
         frontLeftWheel.setPower(0.5);
         rightWheel.setPower(0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
 
 
-    public void diagonalBottomRight(){
+    public void diagonalBottomRight(int time){
         frontRightWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
+        sleep(time);
+        stopAllMotors();
     }
 
     public void sleep(int milliseconds) {
@@ -122,5 +145,11 @@ public class TenBasicMovementFunctions extends OpMode {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    public void stopAllMotors(){
+        frontLeftWheel.setPower(0);
+        frontRightWheel.setPower(0);
+        rightWheel.setPower(0);
+        leftWheel.setPower(0);
     }
 }

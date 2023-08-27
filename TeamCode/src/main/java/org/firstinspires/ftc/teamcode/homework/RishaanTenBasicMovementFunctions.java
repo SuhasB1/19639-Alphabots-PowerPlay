@@ -5,16 +5,12 @@ Create a copy by right clicking the program name, then press copy.
 Right click the program name again and press paste. Once you complete this, upload your new program to github
 When copying the program, make sure to edit the program name by adding ur name at the start.
 Ex: "Suhas_TenBasicMovementFunctions"
+ri
 */
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-//Make sure you have read the comments above before moving on!!
-// You will need more imports to get this program to work
-//To import a function, right click on any red underline you see
-//Press Show Context Actions
-//Press import class and it should automatically add it here.
 
 public class RishaanTenBasicMovementFunctions extends OpMode {
 

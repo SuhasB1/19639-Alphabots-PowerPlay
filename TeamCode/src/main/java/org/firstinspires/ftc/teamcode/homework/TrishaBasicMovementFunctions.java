@@ -105,7 +105,6 @@ public class TrishaBasicMovementFunctions extends OpMode {
 
 
     public void diagonalTopRight(int time){
-    public void diagonalTopRight(){
         frontLeftWheel.setPower(0.5);
         rightWheel.setPower(0.5);
     }
@@ -135,4 +134,4 @@ public class TrishaBasicMovementFunctions extends OpMode {
 
         }
     }
-}
+

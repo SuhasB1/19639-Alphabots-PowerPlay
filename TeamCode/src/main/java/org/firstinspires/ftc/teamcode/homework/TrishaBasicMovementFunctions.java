@@ -7,6 +7,7 @@ When copying the program, make sure to edit the program name by adding ur name a
 Ex: "Suhas_TenBasicMovementFunctions"
 */
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 //To import a function, right click on any red underline you see
 //Press Show Context Actions
 //Press import class and it should automatically add it here.
-
+@Autonomous(name = "Trisha basic movement")
 public class TrishaBasicMovementFunctions extends OpMode {
 
     DcMotor leftWheel;
@@ -33,7 +34,7 @@ public class TrishaBasicMovementFunctions extends OpMode {
 
 
         frontLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
@@ -49,6 +50,10 @@ public class TrishaBasicMovementFunctions extends OpMode {
 
     @Override
     public void start(){
+        moveForward(100);
+        strafeLeft(100);
+        backward(100);
+        strafeRight(100);
     }
 
     public void moveForward(int time){
@@ -56,6 +61,8 @@ public class TrishaBasicMovementFunctions extends OpMode {
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
+        stopMotor();
+        sleep(time);
     }
 
     public void strafeLeft(int time){
@@ -63,6 +70,8 @@ public class TrishaBasicMovementFunctions extends OpMode {
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(-0.5);
+        stopMotor();
+        sleep(time);
     }
 
     public void strafeRight(int time){
@@ -70,6 +79,8 @@ public class TrishaBasicMovementFunctions extends OpMode {
         leftWheel.setPower(-0.5);
         rightWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
+        stopMotor();
+        sleep(time);
     }
 
     public void backward(int time){
@@ -77,6 +88,8 @@ public class TrishaBasicMovementFunctions extends OpMode {
         rightWheel.setPower(-0.5);
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
+        stopMotor();
+        sleep(time);
     }
 
     public void turnLeft(int time){
@@ -84,29 +97,39 @@ public class TrishaBasicMovementFunctions extends OpMode {
         leftWheel.setPower(-0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
+        stopMotor();
+        sleep(time);
     }
     public void turnRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
+        stopMotor();
+        sleep(time);
     }
 
     public void diagonalTopLeft(int time){
         frontRightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
+        stopMotor();
+        sleep(time);
     }
 
 
     public void diagonalBottomLeft(int time){
         frontLeftWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
+        stopMotor();
+        sleep(time);
     }
 
 
     public void diagonalTopRight(int time){
         frontLeftWheel.setPower(0.5);
         rightWheel.setPower(0.5);
+        stopMotor();
+        sleep(time);
     }
 
 
@@ -115,7 +138,7 @@ public class TrishaBasicMovementFunctions extends OpMode {
         frontRightWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
         stopMotor();
-
+        sleep(time);
     }
 
     public void sleep(int milliseconds){
@@ -131,7 +154,6 @@ public class TrishaBasicMovementFunctions extends OpMode {
             frontRightWheel.setPower(0);
             rightWheel.setPower(0);
             leftWheel.setPower(0);
-
         }
     }
 

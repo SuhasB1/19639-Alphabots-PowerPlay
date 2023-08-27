@@ -5,16 +5,12 @@ Create a copy by right clicking the program name, then press copy.
 Right click the program name again and press paste. Once you complete this, upload your new program to github
 When copying the program, make sure to edit the program name by adding ur name at the start.
 Ex: "Suhas_TenBasicMovementFunctions"
+ri
 */
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-//Make sure you have read the comments above before moving on!!
-// You will need more imports to get this program to work
-//To import a function, right click on any red underline you see
-//Press Show Context Actions
-//Press import class and it should automatically add it here.
 
 public class RishaanTenBasicMovementFunctions extends OpMode {
 
@@ -51,70 +47,90 @@ public class RishaanTenBasicMovementFunctions extends OpMode {
     public void start(){
     }
 
-    public void moveForward(){
+    public void moveForward(int time){
         frontLeftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
 
-    public void strafeLeft(){
+    public void strafeLeft(int time){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(-0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
-    public void strafeRight(){
+    public void strafeRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(-0.5);
         rightWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
-    public void backward(){
+    public void backward(int time){
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
-    public void turnLeft(){
+    public void turnLeft(int time){
         frontLeftWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
         frontRightWheel.setPower(0.5);
         rightWheel.setPower(0.5);
+        sleep(time);
+        resetMotorPower();
     }
-    public void turnRight(){
+    public void turnRight(int time){
         frontLeftWheel.setPower(0.5);
         leftWheel.setPower(0.5);
         frontRightWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
-    public void diagonalTopLeft(){
+    public void diagonalTopLeft(int time){
         frontRightWheel.setPower(0.5);
         leftWheel.setPower(0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
 
-    public void diagonalBottomLeft(){
+    public void diagonalBottomLeft(int time){
         frontLeftWheel.setPower(-0.5);
         rightWheel.setPower(-0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
 
 
-    public void diagonalTopRight(){
+    public void diagonalTopRight(int time){
         frontLeftWheel.setPower(0.5);
         rightWheel.setPower(0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
 
-    public void diagonalBottomRight(){
+    public void diagonalBottomRight(int time){
         frontRightWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
+        sleep(time);
+        resetMotorPower();
     }
 
     public void sleep(int milliseconds) {
@@ -123,6 +139,13 @@ public class RishaanTenBasicMovementFunctions extends OpMode {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void resetMotorPower(){
+        leftWheel.setPower(0);
+        rightWheel.setPower(0);
+        frontLeftWheel.setPower(0);
+        frontRightWheel.setPower(0);
     }
 }
 

@@ -115,4 +115,12 @@ public class TenBasicMovementFunctions extends OpMode {
         frontRightWheel.setPower(-0.5);
         leftWheel.setPower(-0.5);
     }
+
+    public void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

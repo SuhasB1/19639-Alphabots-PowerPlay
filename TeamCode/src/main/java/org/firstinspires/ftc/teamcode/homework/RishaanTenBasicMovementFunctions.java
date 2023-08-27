@@ -8,10 +8,12 @@ Ex: "Suhas_TenBasicMovementFunctions"
 ri
 */
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+@Autonomous(name = "RishaanBasicMovement 🦍")
 public class RishaanTenBasicMovementFunctions extends OpMode {
 
     DcMotor leftWheel;
@@ -29,7 +31,7 @@ public class RishaanTenBasicMovementFunctions extends OpMode {
 
 
         frontLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
@@ -45,6 +47,10 @@ public class RishaanTenBasicMovementFunctions extends OpMode {
 
     @Override
     public void start(){
+        moveForward(500);
+        backward(500);
+        turnLeft(250);
+        turnRight(250);
     }
 
     public void moveForward(int time){
